@@ -1,9 +1,9 @@
 import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { Profile, Strategy } from "passport-google-oauth20";
 import { PassportStrategy } from "@nestjs/passport";
-import { getAllowedEmails, getGoogleOAuth2Info } from "src/constants/authinfo.const";
-import { UserInfoSchema, type UserInfo } from "src/schemas/userinfo.zod";
-import { zodParsing } from '../utils/zod.util'
+import { getAllowedEmails, getGoogleOAuth2Info } from "src/commons/constants/authinfo.const";
+import { UserInfoSchema, type UserInfo } from "src/auth/schemas/userinfo.zod";
+import { zodParsing } from '../commons/utils/zod.util'
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -17,7 +17,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const { emails, id, displayName, provider } = profile
     const email = emails?.[0]?.value
 
-    if (getAllowedEmails().includes(email!)) {
+    if (!getAllowedEmails().includes(email!)) {
       this.logger.warn(`인증되지 않은 유저 접속시도: ${email}`)
       throw new UnauthorizedException(`${email}은 인증되지 않은 사용자입니다.`)
     }

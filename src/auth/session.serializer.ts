@@ -1,7 +1,7 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PassportSerializer } from "@nestjs/passport";
-import { UserInfoSchema } from '../schemas/userinfo.zod'
-import { zodParsing } from '../utils/zod.util'
+import { UserInfoSchema } from './schemas/userinfo.zod'
+import { zodParsing } from '../commons/utils/zod.util'
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer{
