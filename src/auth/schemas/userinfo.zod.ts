@@ -1,8 +1,7 @@
 import { z } from 'zod'
-import { getAllowedEmails } from "../../commons/constants/authinfo.const";
 
 export const UserInfoSchema = z.object({
-  email: z.string().email().refine(val => getAllowedEmails().includes(val)),
+  email: z.string().email(),
   id: z.string(),
   displayName: z.string(),
   provider: z.string(),
