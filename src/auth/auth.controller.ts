@@ -14,7 +14,7 @@ export class AuthController {
     return res.redirect('/')
   }
 
-  @Get('/check')
+  @Get('check')
   async checkSession(@Req() req: Request, @Res() res: Response) {
     console.log('SESSION ID:', req.sessionID);
     console.log('SESSION:', req.session);
@@ -28,7 +28,7 @@ export class AuthController {
     });
   }
 
-  @Get('/test')
+  @Get('test')
   @UseGuards(LoginGuard)
   async test(@Req() req: Request, @Res() res: Response) {
     return res.send(req.user)
