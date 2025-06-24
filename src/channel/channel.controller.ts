@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { Controller, Get, Req, Res, UseGuards } from "@nestjs/common";
 import { LoginGuard } from '../auth/auth.guard'
 import { ChannelService } from "./channel.service"
+import { Pageable } from '../commons/types/database'
 
 @Controller('channels')
 export class ChannelController {
@@ -10,10 +11,10 @@ export class ChannelController {
   @Get()
   @UseGuards(LoginGuard)
   async getChannels(@Req() req: Request, @Res() res: Response) {
-    const page = Number(req.query.page || 1)
-    const pageSize = Number(req.query.pageSize || 10)
-
-    const channelIds = await this.channelService.getChannelIdsWithPage(page, pageSize)
+    const pageable: Pageable | undefined = req.query.page ? {
+      page: Number(req.query.page), pageSize: Number(req.query.pageSize || 10),
+    } : undefined
+    const channelIds = await this.channelService.getChannelIdsWithPage(pageable)
 
     return res.status(200).send(channelIds);
   }

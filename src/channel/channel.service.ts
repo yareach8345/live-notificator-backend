@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelRepository } from './channel.repository';
+import { Pageable } from 'src/commons/types/database';
 
 @Injectable()
 export class ChannelService {
@@ -9,9 +10,7 @@ export class ChannelService {
     return await this.channelRepository.getChannelIds()
   }
 
-  async getChannelIdsWithPage(page: number ,pageSize: number = 10) {
-    return await this.channelRepository.getChannelIds({
-      page, pageSize
-    })
+  async getChannelIdsWithPage(pageable?: Pageable) {
+    return await this.channelRepository.getChannelIds(pageable)
   }
 }
