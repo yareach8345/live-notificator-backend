@@ -10,7 +10,7 @@ export class ChannelController {
   @Get()
   @UseGuards(LoginGuard)
   async getChannels(@Req() req: Request, @Res() res: Response) {
-    const page = Number(req.query.page || 0)
+    const page = Number(req.query.page || 1)
     const pageSize = Number(req.query.pageSize || 10)
 
     const channelIds = await this.channelService.getChannelIdsWithPage(page, pageSize)
