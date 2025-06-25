@@ -29,7 +29,7 @@ export class ChannelController {
 
   @Get("/:channelId")
   async getChannel(@Res() res: Response, @Param("channelId") channelId: string) {
-    const channel = this.channelService.getChannel(channelId)
+    const channel = await this.channelService.getChannel(channelId)
 
     return res.status(200).send(channel)
   }

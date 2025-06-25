@@ -21,7 +21,7 @@ export class ChannelRepository {
   }
 
   async getChannelById(channelId: string) {
-    return this.repository.findOne({ where: { channelId }, ...this.orderByPriority })
+    return this.repository.findOne({ where: { channelId } })
   }
 
   async getChannelIds(pageable?: Pageable) {
