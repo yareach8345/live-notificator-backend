@@ -1,5 +1,5 @@
 export interface LiveOpenDto {
-  liveState: 'open',
+  state: 'open',
   isOpen: true,
   liveTitle: string,
   concurrentUserCount: number,
@@ -8,12 +8,12 @@ export interface LiveOpenDto {
 }
 
 export interface LiveCloseDto {
-  liveState: 'closed',
+  state: 'closed',
   isOpen: false,
 }
 
 export interface LiveNotFoundDto {
-  liveState: 'notFound',
+  state: 'notFound',
   isOpen: false,
 }
 

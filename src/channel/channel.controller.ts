@@ -35,6 +35,20 @@ export class ChannelController {
     return res.status(200).json(channel)
   }
 
+  @Get("states/open")
+  async getOpenChannels(@Res() res: Response) {
+    const openChannels = await this.channelService.getOpenChannels()
+
+    return res.status(200).json(openChannels)
+  }
+
+  @Get("states/close")
+  async getCloseChannels(@Res() res: Response) {
+    const closeChannels = await this.channelService.getCloseChannels()
+
+    return res.status(200).json(closeChannels)
+  }
+
   @Post()
   async registerChannel(@Res() res: Response, @Body() registerChannelDto: RegisterChannelDto) {
     const created = await this.channelService.registerChannel(registerChannelDto)

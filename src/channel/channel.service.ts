@@ -21,7 +21,23 @@ export class ChannelService {
   async getChannels(pageable?: Pageable) {
     const ids = await this.channelRepository.getChannelIds(pageable)
 
-    return await this.chzzkService.getChannelDetails(ids)
+    return this.chzzkService.getChannelDetails(ids)
+  }
+
+  async getOpenChannels() {
+    const ids = await this.channelRepository.getChannelIds()
+
+    const channels = await this.chzzkService.getChannelDetails(ids)
+
+    return channels.filter(channels => channels.liveState.isOpen)
+  }
+
+  async getCloseChannels() {
+    const ids = await this.channelRepository.getChannelIds()
+
+    const channels = await this.chzzkService.getChannelDetails(ids)
+
+    return channels.filter(channels => !channels.liveState.isOpen)
   }
 
   async getChannel(channelId: string) {
@@ -31,7 +47,7 @@ export class ChannelService {
       throw new NotFoundException(`채널을 찾을 수 없습니다: ${channelId}`)
     }
 
-    return channel
+    return this.chzzkService.getChannelDetail(channelId)
   }
 
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
