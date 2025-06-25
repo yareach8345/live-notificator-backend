@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { requireEnv } from './commons/utils/env.util'
 import { ChannelEntity } from './channel/channel.entity'
 import { ChannelModule } from './channel/channel.module'
+import { ChzzkModule } from './chzzk/chzzk.module'
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ChannelModule } from './channel/channel.module'
     }),
     AuthModule,
     ChannelModule,
+    ChzzkModule,
   ],
   controllers: [ AppController ],
   providers: [AppService],

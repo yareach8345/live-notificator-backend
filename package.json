@@ -26,6 +26,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "chzzk": "^1.10.4",
     "crypto": "^1.0.1",
     "express-session": "^1.18.1",
     "mysql": "^2.18.1",
