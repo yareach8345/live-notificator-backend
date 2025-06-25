@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { ChannelDto } from './dto/channel.dto'
 
 @Entity('channels')
 export class ChannelEntity {
@@ -13,4 +14,13 @@ export class ChannelEntity {
 
   @Column({ nullable: true, default: '#FFFFFF' })
   color: string
+
+  toDto(): ChannelDto {
+    return {
+      channelId: this.channelId,
+      displayName: this.displayName,
+      priority: this.priority,
+      color: this.color,
+    }
+  }
 }

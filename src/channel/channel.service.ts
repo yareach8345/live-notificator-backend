@@ -6,11 +6,15 @@ import { Pageable } from 'src/commons/types/database';
 export class ChannelService {
   constructor(private readonly channelRepository: ChannelRepository) {}
 
-  async getAllChannelIds() {
-    return await this.channelRepository.getChannelIds()
+  async getChannelIds(pageable?: Pageable) {
+    return this.channelRepository.getChannelIds(pageable)
   }
 
-  async getChannelIdsWithPage(pageable?: Pageable) {
-    return await this.channelRepository.getChannelIds(pageable)
+  async getChannels(pageable?: Pageable) {
+    return this.channelRepository.getChannels(pageable)
+  }
+
+  async getChannel(channelId: string) {
+    return this.channelRepository.getChannelById(channelId)
   }
 }
