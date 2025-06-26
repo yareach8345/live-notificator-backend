@@ -21,6 +21,7 @@ export class ChannelEntity {
   toDto(): ChannelDto {
     return {
       channelId: this.channelId,
+      platform: this.platform,
       displayName: this.displayName,
       priority: this.priority,
       color: this.color,

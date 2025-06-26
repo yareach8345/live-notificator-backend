@@ -5,13 +5,19 @@ import { getLiveStateDtoFromLiveStatus } from './chzzk.util'
 import { ChzzkChannelInfoDto } from './dto/chzzk-channel-info.dto'
 import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
+import { PlatformBaseService } from '../commons/base/platform-base.service'
 
 @Injectable()
-export class ChzzkService {
+export class ChzzkService extends PlatformBaseService<ChzzkChannelDetailDto> {
   private readonly chzzkClient: ChzzkClient
-  private readonly logger: Logger = new Logger(ChzzkService.name)
+  protected readonly logger: Logger
 
   constructor() {
+    const logger = new Logger(ChzzkService.name)
+
+    super(logger)
+    this.logger = logger
+
     this.chzzkClient = new ChzzkClient({
       nidAuth: process.env.NID_AUT,
       nidSession: process.env.NID_SES,
@@ -41,24 +47,10 @@ export class ChzzkService {
     return getLiveStateDtoFromLiveStatus(live)
   }
 
-  private async loadChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
+  protected async loadChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
     const channel = await this.getChannelInfo(channelId)
     const liveState = await this.getLiveState(channelId)
 
     return { channelId, channel, liveState }
-  }
-
-  async getChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
-    this.logger.log(`채널 정보를 불러옵니다: ${channelId}`)
-    const channelDetail = await this.loadChannelDetail(channelId)
-    this.logger.log(`채널 정보를 불러왔습니다: ${channelDetail.channel.displayName}(${channelId})`)
-    return channelDetail
-  }
-
-  async getChannelDetails(channelIds: string[]): Promise<ChzzkChannelDetailDto[]> {
-    this.logger.log("채널 정보를 다시 불러옵니다")
-    const channelDetails = await Promise.all(channelIds.map(channelId => this.loadChannelDetail(channelId)))
-    this.logger.log(`${channelDetails.length}개의 채널 정보를 다시 불러왔습니다.`)
-    return channelDetails;
   }
 }
