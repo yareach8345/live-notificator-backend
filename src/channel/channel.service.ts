@@ -5,6 +5,7 @@ import { ChzzkService } from '../chzzk/chzzk.service'
 import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
+import { Cron } from '@nestjs/schedule'
 
 @Injectable()
 export class ChannelService {
@@ -74,5 +75,12 @@ export class ChannelService {
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
 
     this.channelStore.deleteChannel(channelId)
+  }
+
+  @Cron("0 * * * * *")
+  async refreshChannels() {
+    this.logger.log("refresh 시작")
+    await this.updateStore()
+    this.logger.log("refresh 완료")
   }
 }
