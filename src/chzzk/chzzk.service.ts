@@ -40,14 +40,24 @@ export class ChzzkService {
     return getLiveStateDtoFromLiveStatus(live)
   }
 
-  async getChannelDetail(channelId: string): Promise<ChannelDetailDto> {
+  private async loadChannelDetail(channelId: string): Promise<ChannelDetailDto> {
     const channel = await this.getChannelInfo(channelId)
     const liveState = await this.getLiveState(channelId)
 
-    return { channel, liveState }
+    return { channelId, channel, liveState }
+  }
+
+  async getChannelDetail(channelId: string): Promise<ChannelDetailDto> {
+    this.logger.log(`채널 정보를 불러옵니다: ${channelId}`)
+    const channelDetail = await this.loadChannelDetail(channelId)
+    this.logger.log(`채널 정보를 불러왔습니다: ${channelDetail.channel.displayName}(${channelId})`)
+    return channelDetail
   }
 
   async getChannelDetails(channelIds: string[]): Promise<ChannelDetailDto[]> {
-    return Promise.all(channelIds.map(channelId => this.getChannelDetail(channelId)))
+    this.logger.log("채널 정보를 다시 불러옵니다")
+    const channelDetails = await Promise.all(channelIds.map(channelId => this.loadChannelDetail(channelId)))
+    this.logger.log(`${channelDetails.length}개의 채널 정보를 다시 불러왔습니다.`)
+    return channelDetails;
   }
 }

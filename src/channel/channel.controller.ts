@@ -53,7 +53,7 @@ export class ChannelController {
   async registerChannel(@Res() res: Response, @Body() registerChannelDto: RegisterChannelDto) {
     const created = await this.channelService.registerChannel(registerChannelDto)
 
-    return res.status(201).json(created).location(`channels/${created.channelId}`)
+    return res.status(201).location(`channels/${created.channelId}`).json(created)
   }
 
   @Delete(":channelId")
