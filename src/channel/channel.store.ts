@@ -1,4 +1,4 @@
-import { ChannelDetailDto } from '../chzzk/dto/channel-detail.dto'
+import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { Pageable } from '../commons/types/database'
@@ -8,10 +8,6 @@ import { ChannelRepository } from './channel.repository'
 export class ChannelStore {
   private channels: ChannelDetailDto[] = []
 
-  constructor(
-    private readonly channelRepository: ChannelRepository
-  ) {}
-
   /*
     우선순위 기준
     1. 방송 상태가 다른 경우 => 켜진 것이 우선
@@ -20,14 +16,13 @@ export class ChannelStore {
     4. 방송이 둘 다 꺼져있고 우선순위가 같은 경우 => 팔로워 수가 우선
    */
   private async sortChannels() {
-    const priorityMap = await this.channelRepository.getPriorityMap()
     this.channels = this.channels.toSorted((c1, c2) => {
       if(c1.liveState.isOpen !== c2.liveState.isOpen) {
         // 1. 방송 상태가 다른 경우 켜진 것이 우선
         return c1.liveState.isOpen ? -1 : 1
       }
 
-      const priorityDiff = priorityMap.get(c1.channelId)! - priorityMap.get(c2.channelId)!
+      const priorityDiff = c1.priority - c2.priority
       if(priorityDiff !== 0) {
         // 2. 방송 상태가 같은 경우 우선순위 높은 것이 우선
         return priorityDiff

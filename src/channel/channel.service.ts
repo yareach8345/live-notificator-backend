@@ -6,6 +6,7 @@ import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
+import { ChannelDetailMapper } from './channel-detail.mapper'
 
 @Injectable()
 export class ChannelService {
@@ -22,9 +23,21 @@ export class ChannelService {
   }
 
   private async updateStore() {
-    const ids = await this.channelRepository.getChannelIds()
+    const channels = await this.channelRepository.getChannels()
 
-    await this.channelStore.update(await this.chzzkService.getChannelDetails(ids))
+    const priorityMap = new Map(channels.map(channel => [channel.channelId, channel.priority]))
+    const chzzkChannelDetails = await this.chzzkService.getChannelDetails(
+      channels.map(channel => channel.channelId)
+    )
+
+    const channelDetails = chzzkChannelDetails.map(ch =>
+      ChannelDetailMapper.fromChzzk(
+        ch,
+        priorityMap.get(ch.channelId) ?? 255
+      )
+    )
+
+    await this.channelStore.update(channelDetails)
     this.logger.log("채널 상태를 업데이트 했습니다.")
   }
 
@@ -55,7 +68,9 @@ export class ChannelService {
   }
 
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
-    const channelDetail = await this.chzzkService.getChannelDetail(channelRegistrationDto.channelId)
+    const chzzkChannelDetail = await this.chzzkService.getChannelDetail(channelRegistrationDto.channelId)
+
+    const channelDetail = ChannelDetailMapper.fromChzzk(chzzkChannelDetail, channelRegistrationDto.priority ?? 255)
 
     const channelDto: ChannelDto = {
       ...channelRegistrationDto,

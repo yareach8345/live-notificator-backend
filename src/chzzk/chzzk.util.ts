@@ -1,7 +1,7 @@
 import { LiveStatus } from 'chzzk'
-import { LiveStateDto } from './dto/live-state.dto'
+import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
 
-export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): LiveStateDto {
+export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): ChzzkLiveStateDto {
   if(liveStatus === null) {
     return {
       state: 'notFound',

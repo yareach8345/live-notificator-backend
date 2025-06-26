@@ -15,6 +15,9 @@ export class ChannelEntity {
   @Column({ nullable: true, default: '#FFFFFF' })
   color: string
 
+  @Column()
+  platform: string
+
   toDto(): ChannelDto {
     return {
       channelId: this.channelId,
