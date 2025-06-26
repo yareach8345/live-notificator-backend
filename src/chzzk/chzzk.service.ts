@@ -30,7 +30,8 @@ export class ChzzkService {
       channelId: channel.channelId,
       channelImageUrl: channel.channelImageUrl,
       displayName: channel.channelName,
-      channelDescription: channel.channelDescription
+      channelDescription: channel.channelDescription,
+      followerCount: channel.followerCount
     }
   }
 
