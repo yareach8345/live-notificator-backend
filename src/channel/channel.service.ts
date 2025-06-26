@@ -24,7 +24,7 @@ export class ChannelService {
   private async updateStore() {
     const ids = await this.channelRepository.getChannelIds()
 
-    this.channelStore.update(await this.chzzkService.getChannelDetails(ids))
+    await this.channelStore.update(await this.chzzkService.getChannelDetails(ids))
     this.logger.log("채널 상태를 업데이트 했습니다.")
   }
 
@@ -65,7 +65,7 @@ export class ChannelService {
     await this.channelRepository.saveChannel(channelDto)
     this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId})`)
 
-    this.channelStore.addChannel(channelDetail)
+    await this.channelStore.addChannel(channelDetail)
 
     return channelDto
   }

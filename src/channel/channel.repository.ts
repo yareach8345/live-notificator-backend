@@ -34,6 +34,16 @@ export class ChannelRepository {
     return channelEntities.map(channel => channel.channelId)
   }
 
+  async getPriorityMap() {
+    const channelEntities = await this.repository.find({
+      select: { channelId: true, priority: true },
+    })
+
+    return new Map(
+      channelEntities.map(entity => [entity.channelId, entity.priority])
+    )
+  }
+
   async saveChannel(channel: ChannelDto) {
     await this.repository.save(channel)
   }

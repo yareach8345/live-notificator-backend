@@ -2,34 +2,42 @@ import { ChannelDetailDto } from '../chzzk/dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { Pageable } from '../commons/types/database'
+import { ChannelRepository } from './channel.repository'
 
 @Injectable()
 export class ChannelStore {
   private channels: ChannelDetailDto[] = []
 
-  private sortChannels() {
-    this.channels = this.channels.toSorted((c1, c2) =>
-      (c1.liveState.isOpen === c2.liveState.isOpen)
-      ? 0
-      : c1.liveState.isOpen ? -1 : 1
-    )
+  constructor(
+    private readonly channelRepository: ChannelRepository
+  ) {}
+
+  private async sortChannels() {
+    const priorityMap = await this.channelRepository.getPriorityMap()
+    this.channels = this.channels.toSorted((c1, c2) => {
+      if(c1.liveState.isOpen !== c2.liveState.isOpen) {
+        return c1.liveState.isOpen ? -1 : 1
+      } else {
+        return priorityMap.get(c1.channelId)! - priorityMap.get(c2.channelId)!
+      }
+    })
   }
 
-  update(newData: ChannelDetailDto[]) {
+  async update(newData: ChannelDetailDto[]) {
     this.channels = newData
-    this.sortChannels()
+    await this.sortChannels()
   }
 
-  updateOne(channelId: string, newData: ChannelDetailDto) {
+  async updateOne(channelId: string, newData: ChannelDetailDto) {
     this.channels = this.channels.map(channel =>
       channel.channel.channelId === channelId ? newData : channel
     )
-    this.sortChannels()
+    await this.sortChannels()
   }
 
-  addChannel(channel: ChannelDetailDto) {
+  async addChannel(channel: ChannelDetailDto) {
     this.channels.push(channel)
-    this.sortChannels()
+    await this.sortChannels()
   }
 
   deleteChannel(channelId: string) {
