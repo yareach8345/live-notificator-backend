@@ -7,6 +7,8 @@ import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelDetailMapper } from './channel-detail.mapper'
+import { ImageService } from '../image/image.service'
+import { ImageDto } from '../image/dto/image.dto'
 
 @Injectable()
 export class ChannelService {
@@ -16,9 +18,20 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
+    private readonly imgService: ImageService,
   ) {
-    this.updateStore().then(() => {
+    this.updateStore().then(async () => {
+      //todo image모듈안에 update images 같은 메서드로 따로 분리할 것
       this.logger.log("채널 상태 초기화 완료")
+      const channels = await this.channelStore.getChannels()
+      const imageDtos: ImageDto[] = channels.map(c => ({
+        channelId: c.channelId,
+        imageUrl: c.channel.channelImageUrl ?? "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png"
+      }))
+
+      imgService.downloadImages(imageDtos).then(async (result) => {
+        console.log("WOW!")
+      })
     })
   }
 
@@ -37,6 +50,8 @@ export class ChannelService {
       )
     )
 
+    // todo 저장 이후 업데이트된 내용과 비교하게 쓰이게 될 변수
+    const channelDetailsFromStoreBeforeUpdate = await this.channelStore.getChannels()
     await this.channelStore.update(channelDetails)
     this.logger.log("채널 상태를 업데이트 했습니다.")
   }
