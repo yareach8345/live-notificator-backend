@@ -8,6 +8,8 @@ import { requireEnv } from './commons/utils/env.util'
 import { ChannelEntity } from './channel/channel.entity'
 import { ChannelModule } from './channel/channel.module'
 import { ChzzkModule } from './chzzk/chzzk.module'
+import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module'
+import { join } from 'path'
 
 @Module({
   imports: [
@@ -21,6 +23,9 @@ import { ChzzkModule } from './chzzk/chzzk.module'
       database: requireEnv('DB_DATABASE'),
       entities: [ChannelEntity],
       logging: true
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public')
     }),
     AuthModule,
     ChannelModule,
