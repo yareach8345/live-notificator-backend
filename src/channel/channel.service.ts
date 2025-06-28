@@ -42,9 +42,13 @@ export class ChannelService {
 
     const imgs: ImageDto[] = channelDetails.map(channel => ({
       channelId: channel.channelId,
-      imageUrl: channel.channel.channelImageUrl ?? "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png"
+      imageUrl: channel.channel.channelImageUrl
     }))
+    // 이미지 최신화 작업
+    // todo 비교작업과 같이 Promise.all 로 기다리개 할 것
     const imgRefreshPromise = this.imgService.refreshImages(imgs)
+    // 갱신되기 전 이미지
+    // todo 비교작업 추가하기
     const channelDetailsFromStoreBeforeUpdate = await this.channelStore.getChannels()
     await this.channelStore.update(channelDetails)
     this.logger.log("채널 상태를 업데이트 했습니다.")
@@ -90,6 +94,10 @@ export class ChannelService {
     this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId})`)
 
     await this.channelStore.addChannel(channelDetail)
+    await this.imgService.refreshImage({
+      channelId: channelDetail.channelId,
+      imageUrl: channelDetail.channel.channelImageUrl
+    })
 
     return channelDto
   }

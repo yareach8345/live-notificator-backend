@@ -1,4 +1,4 @@
 export class ImageDto {
-  imageUrl: string
+  imageUrl?: string
   channelId: string
 }

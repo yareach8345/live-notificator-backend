@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ImageDto } from './dto/image.dto'
-import { ImageChangeCheckResult } from './dto/image-change.dto'
+import { ImageEvaluationResult } from './dto/image-change.dto'
 
 @Injectable()
 export class ImageStore {
@@ -13,19 +13,33 @@ export class ImageStore {
     })
   }
 
-  chackChange(recentImageInfos: ImageDto[]): ImageChangeCheckResult {
+  evaluateImageChange(imageDto: ImageDto): 'updated' | 'unchanged' | 'new' {
+    const currentImage = this.storedImageMap.get(imageDto.channelId)
+
+    if(currentImage === undefined) {
+      return 'new'
+    } else if (currentImage.imageUrl !== imageDto.imageUrl) {
+      return 'updated'
+    } else {
+      return 'unchanged'
+    }
+  }
+
+  evaluateImagesChange(recentImageInfos: ImageDto[]): ImageEvaluationResult {
+    const added: ImageDto[] = []
     const updated: ImageDto[] = []
     const unchanged: ImageDto[] = []
     const deleted: ImageDto[] = []
 
     const currentImageMap = new Map(this.storedImageMap)
     recentImageInfos.forEach(image => {
-      const currentImage = currentImageMap.get(image.channelId)
       currentImageMap.delete(image.channelId)
 
-      if(currentImage === undefined) {
-        updated.push(image)
-      } else if (currentImage.imageUrl !== image.imageUrl) {
+      const determineResult = this.evaluateImageChange(image)
+
+      if(determineResult === 'new') {
+        added.push(image)
+      } else if (determineResult === 'updated') {
         updated.push(image)
       } else {
         return unchanged.push(image)
@@ -35,6 +49,7 @@ export class ImageStore {
     currentImageMap.forEach((image) => deleted.push(image))
 
     return {
+      added,
       updated,
       unchanged,
       deleted
