@@ -21,17 +21,7 @@ export class ChannelService {
     private readonly imgService: ImageService,
   ) {
     this.updateStore().then(async () => {
-      //todo image모듈안에 update images 같은 메서드로 따로 분리할 것
       this.logger.log("채널 상태 초기화 완료")
-      const channels = await this.channelStore.getChannels()
-      const imageDtos: ImageDto[] = channels.map(c => ({
-        channelId: c.channelId,
-        imageUrl: c.channel.channelImageUrl ?? "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png"
-      }))
-
-      imgService.downloadImages(imageDtos).then(async (result) => {
-        console.log("WOW!")
-      })
     })
   }
 
@@ -50,7 +40,11 @@ export class ChannelService {
       )
     )
 
-    // todo 저장 이후 업데이트된 내용과 비교하게 쓰이게 될 변수
+    const imgs: ImageDto[] = channelDetails.map(channel => ({
+      channelId: channel.channelId,
+      imageUrl: channel.channel.channelImageUrl ?? "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png"
+    }))
+    const imgRefreshPromise = this.imgService.refreshImages(imgs)
     const channelDetailsFromStoreBeforeUpdate = await this.channelStore.getChannels()
     await this.channelStore.update(channelDetails)
     this.logger.log("채널 상태를 업데이트 했습니다.")
