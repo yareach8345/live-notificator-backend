@@ -6,6 +6,7 @@ import { mkdirSync } from 'fs'
 import { ImageDto } from './dto/image.dto'
 import { ImageStore } from './image.store'
 import * as sharp from 'sharp'
+import { ChannelImageRepository } from './channel-image.repository'
 
 @Injectable()
 export class ImageService {
@@ -39,10 +40,15 @@ export class ImageService {
   private readonly logger = new Logger(ImageService.name)
 
   constructor(
-    private readonly imageStore: ImageStore
+    private readonly imageStore: ImageStore,
+    private readonly channelImageRepository: ChannelImageRepository,
   ) {
     mkdirSync(ImageService.generateImgDirectoryPath('original'), { recursive: true })
     ImageService.generateImgDirectoryPathBySize().map(path => mkdirSync(path, { recursive: true }))
+
+    this.initializeImageStore().then( () => {
+      this.logger.log("채널 이미지 저장소 초기화 완료")
+    })
   }
 
   static generateImgName(imageName: string) {
@@ -69,6 +75,11 @@ export class ImageService {
     ]
   }
 
+  private async initializeImageStore() {
+    const imagesFromDatabase = await this.channelImageRepository.getAllChannelImages()
+
+    this.imageStore.update( imagesFromDatabase )
+  }
 
   private async downloadAndSaveImage({channelId, imageUrl} : ImageDto) {
     const response = await axios.get(
@@ -99,12 +110,14 @@ export class ImageService {
   async downloadChannelImage(imageDownloadDto: ImageDto) {
     this.logger.log(`이미지 다운로드 시작 : ${imageDownloadDto.channelId}`)
     await this.downloadAndSaveImage(imageDownloadDto)
+    await this.channelImageRepository.saveChannelImage(imageDownloadDto)
     this.logger.log(`이미지 다운로드 완료 : ${ImageService.generateImgName(imageDownloadDto.channelId)}`)
   }
 
   async downloadChannelImages(imageDownloadDtos: ImageDto[]) {
     this.logger.log(`이미지 ${imageDownloadDtos.length}개 다운로드 시작`)
     await Promise.all(imageDownloadDtos.map(this.downloadAndSaveImage))
+    await this.channelImageRepository.saveChannelImages(imageDownloadDtos)
     this.logger.log(`이미지 ${imageDownloadDtos.length}개 다운로드 완료`)
   }
 

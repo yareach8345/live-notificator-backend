@@ -10,6 +10,7 @@ import { ChannelModule } from './channel/channel.module'
 import { ChzzkModule } from './chzzk/chzzk.module'
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module'
 import { join } from 'path'
+import { ChannelImageEntity } from './image/channel-image.entity'
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { join } from 'path'
       username: requireEnv('DB_USERNAME'),
       password: requireEnv('DB_PASSWORD'),
       database: requireEnv('DB_DATABASE'),
-      entities: [ChannelEntity],
+      entities: [ChannelEntity, ChannelImageEntity],
       logging: true
     }),
     ServeStaticModule.forRoot({

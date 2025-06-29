@@ -11,7 +11,8 @@ export class ChannelRepository {
   private readonly orderByPriority: FindManyOptions<ChannelEntity> = { order: { priority: 'ASC' } }
 
   constructor(
-    @InjectRepository(ChannelEntity) private readonly repository: Repository<ChannelEntity>,
+    @InjectRepository(ChannelEntity)
+    private readonly repository: Repository<ChannelEntity>,
   ) {}
 
   async getChannels(pageable?: Pageable) {
@@ -21,7 +22,8 @@ export class ChannelRepository {
   }
 
   async getChannelById(channelId: string) {
-    return this.repository.findOne({ where: { channelId } })
+    const result = await this.repository.findOne({ where: { channelId } })
+    return result?.toDto()
   }
 
   async getChannelIds(pageable?: Pageable) {
@@ -32,16 +34,6 @@ export class ChannelRepository {
     })
 
     return channelEntities.map(channel => channel.channelId)
-  }
-
-  async getPriorityMap() {
-    const channelEntities = await this.repository.find({
-      select: { channelId: true, priority: true },
-    })
-
-    return new Map(
-      channelEntities.map(entity => [entity.channelId, entity.priority])
-    )
   }
 
   async saveChannel(channel: ChannelDto) {
