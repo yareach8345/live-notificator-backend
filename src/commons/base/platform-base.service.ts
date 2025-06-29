@@ -13,9 +13,9 @@ export abstract class PlatformBaseService<CDto> {
   }
 
   async getChannelDetails(channelIds: string[]): Promise<CDto[]> {
-    this.logger?.log("채널 정보를 다시 불러옵니다")
+    this.logger?.log("채널 정보를 불러옵니다")
     const channelDetails = await Promise.all(channelIds.map(channelId => this.loadChannelDetail(channelId)))
-    this.logger?.log(`${channelDetails.length}개의 채널 정보를 다시 불러왔습니다.`)
+    this.logger?.log(`${channelDetails.length}개의 채널 정보를 불러왔습니다.`)
     return channelDetails;
   }
 }
