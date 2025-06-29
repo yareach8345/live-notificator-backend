@@ -3,17 +3,17 @@ import axios from 'axios'
 import {join} from 'path'
 import * as fs from 'fs/promises'
 import { mkdirSync } from 'fs'
-import { ImageDto } from './dto/image.dto'
-import { ImageStore } from './image.store'
+import { ChannelImageDto } from './dto/channel-image.dto'
+import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
 import { ChannelImageRepository } from './channel-image.repository'
 
 @Injectable()
-export class ImageService {
-  static readonly IMG_DIRECTORY = join(__dirname, '../../public/image')
+export class ChannelImageService {
+  static readonly IMG_DIRECTORY = join(__dirname, '../../public/channel-image')
   static readonly IMG_SIZES = [100, 200]
 
-  static readonly CIRCLE_MASKS = new Map(ImageService.IMG_SIZES.map(size => [
+  static readonly CIRCLE_MASKS = new Map(ChannelImageService.IMG_SIZES.map(size => [
     size,
     sharp({
       create: {
@@ -37,14 +37,14 @@ export class ImageService {
       .toBuffer()
   ]))
 
-  private readonly logger = new Logger(ImageService.name)
+  private readonly logger = new Logger(ChannelImageService.name)
 
   constructor(
-    private readonly imageStore: ImageStore,
+    private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
   ) {
-    mkdirSync(ImageService.generateImgDirectoryPath('original'), { recursive: true })
-    ImageService.generateImgDirectoryPathBySize().map(path => mkdirSync(path, { recursive: true }))
+    mkdirSync(ChannelImageService.generateImgDirectoryPath('original'), { recursive: true })
+    ChannelImageService.generateImgDirectoryPathBySize().map(path => mkdirSync(path, { recursive: true }))
 
     this.initializeImageStore().then( () => {
       this.logger.log("채널 이미지 저장소 초기화 완료")
@@ -81,7 +81,7 @@ export class ImageService {
     this.imageStore.update( imagesFromDatabase )
   }
 
-  private async downloadAndSaveImage({channelId, imageUrl} : ImageDto) {
+  private async downloadAndSaveImage({channelId, imageUrl} : ChannelImageDto) {
     const response = await axios.get(
       imageUrl ?? "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png",
       { responseType: 'arraybuffer' }
@@ -90,31 +90,31 @@ export class ImageService {
 
     //원본 이미지 저장
     await fs.writeFile(
-      ImageService.generateImgPath(channelId, 'original'),
+      ChannelImageService.generateImgPath(channelId, 'original'),
       imageBuffer
     )
 
     //사이즈별 이미지 저장
-    ImageService.IMG_SIZES.map(async size => {
+    ChannelImageService.IMG_SIZES.map(async size => {
       return sharp(imageBuffer)
         .resize(size, size)
         .composite([{
-          input: await ImageService.CIRCLE_MASKS.get(size),
+          input: await ChannelImageService.CIRCLE_MASKS.get(size),
           blend: 'dest-in',
         }])
         .png()
-        .toFile(ImageService.generateImgPath(channelId, size))
+        .toFile(ChannelImageService.generateImgPath(channelId, size))
     })
   }
 
-  async downloadChannelImage(imageDownloadDto: ImageDto) {
+  async downloadChannelImage(imageDownloadDto: ChannelImageDto) {
     this.logger.log(`이미지 다운로드 시작 : ${imageDownloadDto.channelId}`)
     await this.downloadAndSaveImage(imageDownloadDto)
     await this.channelImageRepository.saveChannelImage(imageDownloadDto)
-    this.logger.log(`이미지 다운로드 완료 : ${ImageService.generateImgName(imageDownloadDto.channelId)}`)
+    this.logger.log(`이미지 다운로드 완료 : ${ChannelImageService.generateImgName(imageDownloadDto.channelId)}`)
   }
 
-  async downloadChannelImages(imageDownloadDtos: ImageDto[]) {
+  async downloadChannelImages(imageDownloadDtos: ChannelImageDto[]) {
     this.logger.log(`이미지 ${imageDownloadDtos.length}개 다운로드 시작`)
     await Promise.all(imageDownloadDtos.map(this.downloadAndSaveImage))
     await this.channelImageRepository.saveChannelImages(imageDownloadDtos)
@@ -122,13 +122,13 @@ export class ImageService {
   }
 
   async deleteImage(imageName: string) {
-    await fs.unlink(ImageService.generateImgPath(imageName, 'original'))
-    await Promise.all(ImageService.generateImgPathsBySize(imageName).map(fs.unlink))
+    await fs.unlink(ChannelImageService.generateImgPath(imageName, 'original'))
+    await Promise.all(ChannelImageService.generateImgPathsBySize(imageName).map(fs.unlink))
   }
 
   async deleteChannelImage(channelId: string) {
     await this.deleteImage(channelId)
-    this.logger.log(`이미지 삭제 : ${ImageService.generateImgName(channelId)}`)
+    this.logger.log(`이미지 삭제 : ${ChannelImageService.generateImgName(channelId)}`)
   }
 
   async deleteChannelImages(channelIds: string[]) {
@@ -136,7 +136,7 @@ export class ImageService {
     this.logger.log(`이미지 ${channelIds.length}개 삭제`)
   }
 
-  async refreshImage(newImageDto: ImageDto) {
+  async refreshImage(newImageDto: ChannelImageDto) {
     const chackResult = this.imageStore.evaluateImageChange(newImageDto)
     switch (chackResult) {
       case "new":
@@ -150,7 +150,7 @@ export class ImageService {
     }
   }
 
-  async refreshImages(newImageDtos: ImageDto[]) {
+  async refreshImages(newImageDtos: ChannelImageDto[]) {
     const chackResult = this.imageStore.evaluateImagesChange(newImageDtos)
 
     if(chackResult.deleted.length > 0) {

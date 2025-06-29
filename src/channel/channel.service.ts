@@ -7,8 +7,8 @@ import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelDetailMapper } from './channel-detail.mapper'
-import { ImageService } from '../image/image.service'
-import { ImageDto } from '../image/dto/image.dto'
+import { ChannelImageService } from '../channel-image/channel-image.service'
+import { ChannelImageDto } from '../channel-image/dto/channel-image.dto'
 
 @Injectable()
 export class ChannelService {
@@ -18,7 +18,7 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
-    private readonly imgService: ImageService,
+    private readonly imgService: ChannelImageService,
   ) {
     this.updateStore().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
@@ -40,7 +40,7 @@ export class ChannelService {
       )
     )
 
-    const imgs: ImageDto[] = channelDetails.map(channel => ({
+    const imgs: ChannelImageDto[] = channelDetails.map(channel => ({
       channelId: channel.channelId,
       imageUrl: channel.channel.channelImageUrl
     }))

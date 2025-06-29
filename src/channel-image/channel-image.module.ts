@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common'
-import { ImageService } from './image.service'
-import { ImageStore } from './image.store'
+import { ChannelImageService } from './channel-image.service'
+import { ChannelImageStore } from './channel-image.store'
 import { ChannelImageRepository } from './channel-image.repository'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ChannelImageEntity } from './channel-image.entity'
 
 @Module({
   imports: [TypeOrmModule.forFeature([ChannelImageEntity])],
-  exports: [ImageService],
-  providers: [ImageService, ImageStore, ChannelImageRepository],
+  exports: [ChannelImageService],
+  providers: [ChannelImageService, ChannelImageStore, ChannelImageRepository],
 })
-export class ImageModule {}
+export class ChannelImageModule {}

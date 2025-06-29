@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import { ImageDto } from './dto/image.dto'
-import { ImageEvaluationResult } from './dto/image-change.dto'
+import { ChannelImageDto } from './dto/channel-image.dto'
+import { ChannelImageEvaluationResult } from './dto/channel-image-evaluation-result.dto'
 
 @Injectable()
-export class ImageStore {
-  private readonly storedImageMap: Map<string, ImageDto> = new Map()
+export class ChannelImageStore {
+  private readonly storedImageMap: Map<string, ChannelImageDto> = new Map()
 
-  update(images: ImageDto[]) {
+  update(images: ChannelImageDto[]) {
     this.storedImageMap.clear()
     images.forEach(imageDto => {
       this.storedImageMap.set(imageDto.channelId, imageDto)
     })
   }
 
-  evaluateImageChange(imageDto: ImageDto): 'updated' | 'unchanged' | 'new' {
+  evaluateImageChange(imageDto: ChannelImageDto): 'updated' | 'unchanged' | 'new' {
     const currentImage = this.storedImageMap.get(imageDto.channelId)
 
     if(currentImage === undefined) {
@@ -25,11 +25,11 @@ export class ImageStore {
     }
   }
 
-  evaluateImagesChange(recentImageInfos: ImageDto[]): ImageEvaluationResult {
-    const added: ImageDto[] = []
-    const updated: ImageDto[] = []
-    const unchanged: ImageDto[] = []
-    const deleted: ImageDto[] = []
+  evaluateImagesChange(recentImageInfos: ChannelImageDto[]): ChannelImageEvaluationResult {
+    const added: ChannelImageDto[] = []
+    const updated: ChannelImageDto[] = []
+    const unchanged: ChannelImageDto[] = []
+    const deleted: ChannelImageDto[] = []
 
     const currentImageMap = new Map(this.storedImageMap)
     recentImageInfos.forEach(image => {

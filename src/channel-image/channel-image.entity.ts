@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm'
-import { ImageDto } from './dto/image.dto'
+import { ChannelImageDto } from './dto/channel-image.dto'
 
 @Entity('channel_images')
 export class ChannelImageEntity {
@@ -9,7 +9,7 @@ export class ChannelImageEntity {
   @Column({ name: 'image_url' })
   imageUrl: string
 
-  toDto(): ImageDto {
+  toDto(): ChannelImageDto {
     return {
       channelId: this.channelId,
       imageUrl: this.imageUrl,

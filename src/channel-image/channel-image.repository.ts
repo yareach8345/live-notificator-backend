@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ChannelImageEntity } from './channel-image.entity'
 import { Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
-import { ImageDto } from './dto/image.dto'
+import { ChannelImageDto } from './dto/channel-image.dto'
 
 @Injectable()
 export class ChannelImageRepository {
@@ -23,11 +23,11 @@ export class ChannelImageRepository {
     return result?.toDto()
   }
 
-  async saveChannelImages(channelImages: ImageDto[]) {
+  async saveChannelImages(channelImages: ChannelImageDto[]) {
     await this.repository.save(channelImages)
   }
 
-  async saveChannelImage(channelImage: ImageDto) {
+  async saveChannelImage(channelImage: ChannelImageDto) {
     await this.repository.save(channelImage)
   }
 }
