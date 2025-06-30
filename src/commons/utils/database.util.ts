@@ -1,4 +1,4 @@
-import { Pageable } from "../types/database";
+import { Pageable } from "../dto/page.dto";
 
 export const calcPagination = (pageable: Pageable | undefined) => {
   if(pageable !== undefined) {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ChannelEntity } from './channel.entity'
 import { FindManyOptions, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm';
-import { Pageable } from '../commons/types/database'
+import { Pageable } from '../commons/dto/page.dto'
 import { calcPagination } from '../commons/utils/database.util'
 import { ChannelDto } from './dto/channel.dto'
 

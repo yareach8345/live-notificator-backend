@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelImageDto } from './dto/channel-image.dto'
 import { ChannelImageEvaluationResult } from './dto/channel-image-evaluation-result.dto'
+import { EvaluationResultDto } from '../commons/dto/evaluation-result.dto'
+import { CompareResult, evaluateDiff } from '../commons/utils/evaluation.util'
 
 @Injectable()
 export class ChannelImageStore {
   private readonly storedImageMap: Map<string, ChannelImageDto> = new Map()
+  
+  private readonly evaluateImages = evaluateDiff("channelId",this.compareImage)
 
   update(images: ChannelImageDto[]) {
     this.storedImageMap.clear()
@@ -13,46 +17,23 @@ export class ChannelImageStore {
     })
   }
 
-  evaluateImageChange(imageDto: ChannelImageDto): 'updated' | 'unchanged' | 'new' {
-    const currentImage = this.storedImageMap.get(imageDto.channelId)
-
-    if(currentImage === undefined) {
+  private compareImage(originalImage: ChannelImageDto | undefined, comparisonImage: ChannelImageDto): CompareResult {
+    if(originalImage === undefined) {
       return 'new'
-    } else if (currentImage.imageUrl !== imageDto.imageUrl) {
+    } else if (originalImage.imageUrl !== comparisonImage.imageUrl) {
       return 'updated'
     } else {
       return 'unchanged'
     }
   }
 
-  evaluateImagesChange(recentImageInfos: ChannelImageDto[]): ChannelImageEvaluationResult {
-    const added: ChannelImageDto[] = []
-    const updated: ChannelImageDto[] = []
-    const unchanged: ChannelImageDto[] = []
-    const deleted: ChannelImageDto[] = []
+  evaluateImageChange(other: ChannelImageDto): 'updated' | 'unchanged' | 'new' {
+    const currentImage = this.storedImageMap.get(other.channelId)
 
-    const currentImageMap = new Map(this.storedImageMap)
-    recentImageInfos.forEach(image => {
-      currentImageMap.delete(image.channelId)
-
-      const determineResult = this.evaluateImageChange(image)
-
-      if(determineResult === 'new') {
-        added.push(image)
-      } else if (determineResult === 'updated') {
-        updated.push(image)
-      } else {
-        return unchanged.push(image)
-      }
-    })
-
-    currentImageMap.forEach((image) => deleted.push(image))
-
-    return {
-      added,
-      updated,
-      unchanged,
-      deleted
-    }
+    return this.compareImage(currentImage, other)
+  }
+  
+  evaluateImagesChange(recentImageInfos: ChannelImageDto[]): EvaluationResultDto<ChannelImageDto>{
+    return this.evaluateImages(this.storedImageMap, recentImageInfos)
   }
 }

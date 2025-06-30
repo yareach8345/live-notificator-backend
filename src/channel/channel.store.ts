@@ -1,7 +1,7 @@
 import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
-import { Pageable } from '../commons/types/database'
+import { Pageable } from '../commons/dto/page.dto'
 
 type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
 

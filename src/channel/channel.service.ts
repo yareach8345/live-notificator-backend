@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ChannelRepository } from './channel.repository';
-import { Pageable } from 'src/commons/types/database';
+import { Pageable } from 'src/commons/dto/page.dto';
 import { ChzzkService } from '../chzzk/chzzk.service'
 import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';

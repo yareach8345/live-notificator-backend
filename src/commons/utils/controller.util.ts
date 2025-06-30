@@ -1,4 +1,4 @@
-import { Pageable } from '../types/database'
+import { Pageable } from '../dto/page.dto'
 import { ParsedQs } from 'qs'
 
 export function getPageable(query: ParsedQs): Pageable | undefined {
