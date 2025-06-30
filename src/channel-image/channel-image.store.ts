@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelImageDto } from './dto/channel-image.dto'
-import { ChannelImageEvaluationResult } from './dto/channel-image-evaluation-result.dto'
 import { EvaluationResultDto } from '../commons/dto/evaluation-result.dto'
 import { CompareResult, evaluateDiff } from '../commons/utils/evaluation.util'
 

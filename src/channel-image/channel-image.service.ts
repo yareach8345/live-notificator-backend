@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import axios from 'axios'
 import {join} from 'path'
 import * as fs from 'fs/promises'
-import { mkdirSync } from 'fs'
+import * as fsSync from 'fs'
 import { ChannelImageDto } from './dto/channel-image.dto'
 import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
@@ -10,7 +10,7 @@ import { ChannelImageRepository } from './channel-image.repository'
 
 @Injectable()
 export class ChannelImageService {
-  static readonly IMG_DIRECTORY = join(__dirname, '../../public/channel-image')
+  static readonly IMG_DIRECTORY = join(__dirname, '../../public/image')
   static readonly IMG_SIZES = [100, 200]
 
   static readonly CIRCLE_MASKS = new Map(ChannelImageService.IMG_SIZES.map(size => [
@@ -43,8 +43,8 @@ export class ChannelImageService {
     private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
   ) {
-    mkdirSync(ChannelImageService.generateImgDirectoryPath('original'), { recursive: true })
-    ChannelImageService.generateImgDirectoryPathBySize().map(path => mkdirSync(path, { recursive: true }))
+    fsSync.mkdirSync(ChannelImageService.generateImgDirectoryPath('original'), { recursive: true })
+    ChannelImageService.generateImgDirectoryPathBySize().map(path => fsSync.mkdirSync(path, { recursive: true }))
 
     this.initializeImageStore().then( () => {
       this.logger.log("채널 이미지 저장소 초기화 완료")
@@ -76,9 +76,30 @@ export class ChannelImageService {
   }
 
   private async initializeImageStore() {
-    const imagesFromDatabase = await this.channelImageRepository.getAllChannelImages()
+    const channelImageRecords = await this.channelImageRepository.getAllChannelImages()
 
-    this.imageStore.update( imagesFromDatabase )
+    this.imageStore.update( channelImageRecords )
+
+    const channelIdsOfRecordedImages = channelImageRecords.map(i => i.channelId)
+    const imageNamesBySizeDir = await Promise.all(
+      [
+        ChannelImageService.generateImgDirectoryPath('original'),
+        ...ChannelImageService.generateImgDirectoryPathBySize()
+      ].map(path => fs.readdir(path))
+    )
+
+    const channelIdsWithIntactImage = new Set(
+      imageNamesBySizeDir
+        .map(set => set.map(filename => filename.substring(0, filename.lastIndexOf('.'))))
+        .map(imageNames => new Set(imageNames))
+        .reduce((prev, curr) => {
+          return prev.filter(x => curr.has(x))
+        }, channelIdsOfRecordedImages)
+    )
+
+    const channelIdsWithMissingImage = new Set(channelIdsOfRecordedImages.filter(x => !channelIdsWithIntactImage.has(x)))
+
+    await this.downloadChannelImages(channelImageRecords.filter(i => channelIdsWithMissingImage.has(i.channelId)))
   }
 
   private async downloadAndSaveImage({channelId, imageUrl} : ChannelImageDto) {
