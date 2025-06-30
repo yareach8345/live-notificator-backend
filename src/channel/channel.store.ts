@@ -2,11 +2,18 @@ import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { Pageable } from '../commons/types/database'
-import { ChannelRepository } from './channel.repository'
+
+type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
 
 @Injectable()
 export class ChannelStore {
   private channels: ChannelDetailDto[] = []
+
+  private readonly updateCallbacks: UpdateCallback[] = []
+
+  addUpdateCallback(callback: UpdateCallback) {
+    this.updateCallbacks.push(callback)
+  }
 
   /*
     우선순위 기준
@@ -39,15 +46,20 @@ export class ChannelStore {
   }
 
   async update(newData: ChannelDetailDto[]) {
+    const oldData = [...this.channels]
     this.channels = newData
     await this.sortChannels()
+    this.updateCallbacks.forEach(callback => callback(newData, oldData))
   }
 
   async updateOne(channelId: string, newData: ChannelDetailDto) {
-    this.channels = this.channels.map(channel =>
+    const oldChannels = [...this.channels]
+    const newChannels = this.channels.map(channel =>
       channel.channel.channelId === channelId ? newData : channel
     )
+    this.channels = newChannels
     await this.sortChannels()
+    this.updateCallbacks.forEach(callback => callback(newChannels, oldChannels))
   }
 
   async addChannel(channel: ChannelDetailDto) {

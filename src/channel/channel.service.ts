@@ -45,12 +45,9 @@ export class ChannelService {
       imageUrl: channel.channel.channelImageUrl
     }))
     // 이미지 최신화 작업
-    // todo 비교작업과 같이 Promise.all 로 기다리개 할 것
     const imgRefreshPromise = this.imgService.refreshImages(imgs)
-    // 갱신되기 전 이미지
-    // todo 비교작업 추가하기
-    const channelDetailsFromStoreBeforeUpdate = await this.channelStore.getChannels()
-    await this.channelStore.update(channelDetails)
+    const channelDetailsRefreshPromise = await this.channelStore.update(channelDetails)
+    await Promise.all([imgRefreshPromise, channelDetailsRefreshPromise])
     this.logger.log("채널 상태를 업데이트 했습니다.")
   }
 
