@@ -7,9 +7,10 @@ import { ChannelImageDto } from './dto/channel-image.dto'
 import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
 import { ChannelImageRepository } from './channel-image.repository'
-import { ChannelStore } from '../channel/channel.store'
-import { generateEvaluator } from '../commons/utils/evaluation.util'
+import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 import { channelDetailToChannelImage } from './channel-image.util'
+import { ChannelService } from '../channel/channel.service'
+import { ChannelChangeObserver } from '../channel/channel-change.notifier'
 
 @Injectable()
 export class ChannelImageService {
@@ -40,14 +41,16 @@ export class ChannelImageService {
       .toBuffer()
   ]))
 
-  static readonly evolaute = generateEvaluator<ChannelImageDto, 'channelId'>('channelId')
+  static readonly evolaute = generateDiffEvaluator<ChannelImageDto, 'channelId'>('channelId')
 
   private readonly logger = new Logger(ChannelImageService.name)
+
+  private channelChangeObserver: ChannelChangeObserver<ChannelImageDto>
 
   constructor(
     private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
-    channelStore: ChannelStore,
+    channelService: ChannelService,
   ) {
     fsSync.mkdirSync(ChannelImageService.generateImgDirectoryPath('original'), { recursive: true })
     ChannelImageService.generateImgDirectoryPathBySize().map(path => fsSync.mkdirSync(path, { recursive: true }))
@@ -55,10 +58,8 @@ export class ChannelImageService {
     this.initializeImageStore()
       .then( () => { this.logger.log("채널 이미지 저장소 초기화 완료") })
       .then( () => {
-        channelStore.addUpdateCallback(async (newChannelDetails) => {
-          const newChannelImages: ChannelImageDto[] = newChannelDetails.map(channelDetailToChannelImage)
-          await this.refreshImages(newChannelImages)
-        })
+        this.channelChangeObserver = channelService.channelChangeSubscribe(channelDetailToChannelImage)
+        this.channelChangeObserver.subscribe((_, channels) => this.refreshImages(channels))
       })
   }
 

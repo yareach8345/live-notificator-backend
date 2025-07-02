@@ -3,7 +3,7 @@ import { isEqual } from 'lodash'
 
 export type IsChangedFunction<T> = (original: T, comparison: T) => boolean
 
-export const generateEvaluator = <T extends Record<K, any>, K extends keyof T>(indexField: K, isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
+export const generateDiffEvaluator = <T extends Record<K, any>, K extends keyof T>(indexField: K, isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
   const added: T[] = []
   const changed: T[] = []
   const unchanged: T[] = []
