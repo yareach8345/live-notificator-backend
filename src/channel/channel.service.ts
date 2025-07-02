@@ -7,7 +7,11 @@ import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelDetailMapper } from './channel-detail.mapper'
-import { ChannelImageDto } from '../channel-image/dto/channel-image.dto'
+import {
+  ChannelChangeObserver,
+  ChannelDetailTransformer,
+  createChannelChangeNotifier,
+} from './channel-change.notifier'
 
 @Injectable()
 export class ChannelService {
@@ -75,6 +79,7 @@ export class ChannelService {
 
     const channelDto: ChannelDto = {
       ...channelRegistrationDto,
+      color: channelRegistrationDto.color?.toLowerCase(),
       displayName: channelDetail.channel.displayName,
     }
 
@@ -91,6 +96,12 @@ export class ChannelService {
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
 
     await this.channelStore.deleteChannel(channelId)
+  }
+
+  channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromDetail: ChannelDetailTransformer<R>): ChannelChangeObserver<R> {
+    const [emitter, observer] = createChannelChangeNotifier<R>(transformFromDetail)
+    this.channelStore.addUpdateCallback(emitter.emit)
+    return observer
   }
 
   @Cron("0 * * * * *")

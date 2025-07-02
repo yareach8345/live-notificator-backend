@@ -2,7 +2,7 @@ import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray } from 'rxjs'
 import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
-import { generateEvaluator } from '../commons/utils/evaluation.util'
+import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 
 type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
 
@@ -14,7 +14,7 @@ export class ChannelStore {
 
   private readonly updateCallbacks: UpdateCallback[] = []
 
-  private readonly evaluate = generateEvaluator<ChannelDetailDto, 'channelId'>('channelId')
+  private readonly evaluate = generateDiffEvaluator<ChannelDetailDto, 'channelId'>('channelId')
 
   addUpdateCallback(callback: UpdateCallback) {
     this.updateCallbacks.push(callback)
@@ -79,7 +79,7 @@ export class ChannelStore {
   addChannel = (channel: ChannelDetailDto) =>
     this.withUpdateCallback(async () => {
       const isAlreadyExists = this.channels.map(c => c.channelId).find(id => id === channel.channelId) !== undefined
-      if(isAlreadyExists) {
+      if(!isAlreadyExists) {
         this.channels.push(channel)
         await this.sortChannels()
       }

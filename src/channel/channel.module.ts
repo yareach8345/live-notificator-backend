@@ -14,6 +14,6 @@ import { ChannelStore } from './channel.store'
   ],
   providers: [ChannelService, ChannelRepository, ChannelStore],
   controllers: [ChannelController],
-  exports: [ChannelStore]
+  exports: [ChannelService]
 })
 export class ChannelModule {}
