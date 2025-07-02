@@ -48,13 +48,14 @@ export class ChannelStore {
 
   async update(newData: ChannelDetailDto[]) {
     const updatedChannelDetails = newData.filter(isEqual)
-    if(updatedChannelDetails.length === 0) {
-      return
+    if(updatedChannelDetails.length !== 0) {
+      return 0
     }
     const oldData = [...this.channels]
     this.channels = newData
     await this.sortChannels()
     this.updateCallbacks.forEach(callback => callback(newData, oldData))
+    return updatedChannelDetails.length
   }
 
   async updateOne(channelId: string, newData: ChannelDetailDto) {
