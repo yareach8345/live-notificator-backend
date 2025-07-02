@@ -1,8 +1,9 @@
 import { EvaluationResultDto } from '../dto/evaluation-result.dto'
+import { isEqual } from 'lodash'
 
-export type CompareResult = 'updated' | 'unchanged' | 'new'
+export type IsChangedFunction<T> = (original: T, comparison: T) => boolean
 
-export const evaluateDiff = <T extends Record<K, any>, K extends keyof T>(indexField: K, compare: (original: T | undefined, comparison: T) => CompareResult) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
+export const generateEvaluator = <T extends Record<K, any>, K extends keyof T>(indexField: K, isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
   const added: T[] = []
   const updated: T[] = []
   const unchanged: T[] = []
@@ -16,12 +17,13 @@ export const evaluateDiff = <T extends Record<K, any>, K extends keyof T>(indexF
     const originalItem = originalDataMap.get(comparisonItem[indexField])
     originalDataMap.delete(comparisonItem[indexField])
 
-    const compareResult = compare(originalItem, comparisonItem)
-
-    if(compareResult=== 'new') {
+    if(originalItem === undefined) {
       added.push(comparisonItem)
-    } else if (compareResult=== 'updated') {
-      updated.push(comparisonItem)
+      return
+    }
+
+    if(isChanged(originalItem, comparisonItem)) {
+      added.push(comparisonItem)
     } else {
       unchanged.push(comparisonItem)
     }

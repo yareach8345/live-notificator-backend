@@ -2,6 +2,7 @@ import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
+import { isEqual } from 'lodash'
 
 type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
 
@@ -46,6 +47,10 @@ export class ChannelStore {
   }
 
   async update(newData: ChannelDetailDto[]) {
+    const updatedChannelDetails = newData.filter(isEqual)
+    if(updatedChannelDetails.length === 0) {
+      return
+    }
     const oldData = [...this.channels]
     this.channels = newData
     await this.sortChannels()
