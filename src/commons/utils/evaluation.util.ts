@@ -5,7 +5,7 @@ export type IsChangedFunction<T> = (original: T, comparison: T) => boolean
 
 export const generateEvaluator = <T extends Record<K, any>, K extends keyof T>(indexField: K, isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
   const added: T[] = []
-  const updated: T[] = []
+  const changed: T[] = []
   const unchanged: T[] = []
   const deleted: T[] = []
 
@@ -33,7 +33,7 @@ export const generateEvaluator = <T extends Record<K, any>, K extends keyof T>(i
 
   return {
     added,
-    updated,
+    changed,
     unchanged,
     deleted
   }

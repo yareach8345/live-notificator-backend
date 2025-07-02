@@ -46,9 +46,9 @@ export class ChannelService {
     }))
     // 이미지 최신화 작업
     const imgRefreshPromise = this.imgService.refreshImages(imgs)
-    const channelDetailsRefreshPromise = await this.channelStore.update(channelDetails)
-    await Promise.all([imgRefreshPromise, channelDetailsRefreshPromise])
-    this.logger.log("채널 상태를 업데이트 했습니다.")
+    const numberOfChangedChannel = await this.channelStore.update(channelDetails)
+    await Promise.all([imgRefreshPromise])
+    this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
   }
 
   async getChannelIds(pageable?: Pageable) {

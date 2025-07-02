@@ -1,6 +1,6 @@
 export interface EvaluationResultDto<T> {
   added: T[]
-  updated: T[],
+  changed: T[],
   unchanged: T[],
   deleted: T[]
 }

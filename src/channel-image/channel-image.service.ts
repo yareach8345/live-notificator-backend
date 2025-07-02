@@ -161,7 +161,7 @@ export class ChannelImageService {
     const chackResult = this.imageStore.evaluateImageChange(newImageDto)
     switch (chackResult) {
       case "new":
-      case "updated":
+      case "changed":
         await this.downloadChannelImage(newImageDto)
         break;
       case "unchanged":
@@ -178,8 +178,8 @@ export class ChannelImageService {
       await this.deleteChannelImages(chackResult.deleted.map(i => i.channelId))
     }
 
-    if(chackResult.updated.length + chackResult.added.length > 0) {
-      await this.downloadChannelImages([...chackResult.updated, ...chackResult.added])
+    if(chackResult.changed.length + chackResult.added.length > 0) {
+      await this.downloadChannelImages([...chackResult.changed, ...chackResult.added])
     }
 
     this.imageStore.update(newImageDtos)

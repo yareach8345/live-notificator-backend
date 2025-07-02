@@ -2,7 +2,7 @@ import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
-import { isEqual } from 'lodash'
+import { generateEvaluator } from '../commons/utils/evaluation.util'
 
 type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
 
@@ -11,6 +11,8 @@ export class ChannelStore {
   private channels: ChannelDetailDto[] = []
 
   private readonly updateCallbacks: UpdateCallback[] = []
+
+  private readonly evaluate = generateEvaluator<ChannelDetailDto, 'channelId'>('channelId')
 
   addUpdateCallback(callback: UpdateCallback) {
     this.updateCallbacks.push(callback)
@@ -47,15 +49,17 @@ export class ChannelStore {
   }
 
   async update(newData: ChannelDetailDto[]) {
-    const updatedChannelDetails = newData.filter(isEqual)
-    if(updatedChannelDetails.length !== 0) {
+    const evaluateResult = this.evaluate(this.channels, newData)
+    const numberOfUpdatedChannels = newData.length - evaluateResult.unchanged.length
+    console.log(`changed ${numberOfUpdatedChannels}/${newData.length} (updated: ${evaluateResult.changed.length}, added: ${evaluateResult.added.length}, deleted: ${evaluateResult.deleted.length})`)
+    if(numberOfUpdatedChannels === 0) {
       return 0
     }
     const oldData = [...this.channels]
     this.channels = newData
     await this.sortChannels()
     this.updateCallbacks.forEach(callback => callback(newData, oldData))
-    return updatedChannelDetails.length
+    return evaluateResult.changed.length
   }
 
   async updateOne(channelId: string, newData: ChannelDetailDto) {

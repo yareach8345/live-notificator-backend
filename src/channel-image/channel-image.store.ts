@@ -24,7 +24,7 @@ export class ChannelImageStore {
   evaluateImageChange(other: ChannelImageDto): CompareResult {
     const currentImage = this.storedImageMap.get(other.channelId)
 
-    return currentImage === undefined ? 'new' : this.compareImage(currentImage, other) ? 'updated' : 'unchanged'
+    return currentImage === undefined ? 'new' : this.compareImage(currentImage, other) ? 'changed' : 'unchanged'
   }
   
   evaluateImagesChange(recentImageInfos: ChannelImageDto[]): EvaluationResultDto<ChannelImageDto>{
