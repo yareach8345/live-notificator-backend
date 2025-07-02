@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common'
 import { ChannelImageDto } from './dto/channel-image.dto'
 import { EvaluationResultDto } from '../commons/dto/evaluation-result.dto'
 import { generateEvaluator } from '../commons/utils/evaluation.util'
+import { CompareResult } from '../commons/types/compare.type'
 
 @Injectable()
 export class ChannelImageStore {
   private readonly storedImageMap: Map<string, ChannelImageDto> = new Map()
   
-  private readonly evaluateImages = generateEvaluator("channelId",this.compareImage)
+  private readonly evaluateImages = generateEvaluator<ChannelImageDto, 'channelId'>('channelId')
 
   update(images: ChannelImageDto[]) {
     this.storedImageMap.clear()
@@ -20,7 +21,7 @@ export class ChannelImageStore {
     return originalImage.imageUrl !== comparisonImage.imageUrl
   }
 
-  evaluateImageChange(other: ChannelImageDto): 'updated' | 'unchanged' | 'new' {
+  evaluateImageChange(other: ChannelImageDto): CompareResult {
     const currentImage = this.storedImageMap.get(other.channelId)
 
     return currentImage === undefined ? 'new' : this.compareImage(currentImage, other) ? 'updated' : 'unchanged'
