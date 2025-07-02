@@ -23,7 +23,7 @@ export const generateEvaluator = <T extends Record<K, any>, K extends keyof T>(i
     }
 
     if(isChanged(originalItem, comparisonItem)) {
-      added.push(comparisonItem)
+      changed.push(comparisonItem)
     } else {
       unchanged.push(comparisonItem)
     }

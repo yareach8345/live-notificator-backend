@@ -1,6 +1,6 @@
 import { ChannelDetailDto } from './dto/channel-detail.dto'
 import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
 import { generateEvaluator } from '../commons/utils/evaluation.util'
 
@@ -9,6 +9,8 @@ type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails:
 @Injectable()
 export class ChannelStore {
   private channels: ChannelDetailDto[] = []
+
+  private logger: Logger = new Logger(ChannelStore.name)
 
   private readonly updateCallbacks: UpdateCallback[] = []
 
@@ -49,13 +51,13 @@ export class ChannelStore {
   }
 
   async update(newData: ChannelDetailDto[]) {
-    const evaluateResult = this.evaluate(this.channels, newData)
+    const oldData = [...this.channels]
+    const evaluateResult = this.evaluate(oldData, newData)
     const numberOfUpdatedChannels = newData.length - evaluateResult.unchanged.length
-    console.log(`changed ${numberOfUpdatedChannels}/${newData.length} (updated: ${evaluateResult.changed.length}, added: ${evaluateResult.added.length}, deleted: ${evaluateResult.deleted.length})`)
+    this.logger.log(`데이터 업데이트 ${numberOfUpdatedChannels}/${newData.length} (changed: ${evaluateResult.changed.length}, added: ${evaluateResult.added.length}, deleted: ${evaluateResult.deleted.length}, unchanged: ${evaluateResult.unchanged.length})`)
     if(numberOfUpdatedChannels === 0) {
       return 0
     }
-    const oldData = [...this.channels]
     this.channels = newData
     await this.sortChannels()
     this.updateCallbacks.forEach(callback => callback(newData, oldData))
