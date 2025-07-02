@@ -1,5 +1,5 @@
 import { ChannelDetailDto } from './dto/channel-detail.dto'
-import { filter, from, lastValueFrom, skip, take, toArray, } from 'rxjs'
+import { filter, from, lastValueFrom, skip, take, toArray } from 'rxjs'
 import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
 import { generateEvaluator } from '../commons/utils/evaluation.util'
@@ -18,6 +18,14 @@ export class ChannelStore {
 
   addUpdateCallback(callback: UpdateCallback) {
     this.updateCallbacks.push(callback)
+  }
+
+  private withUpdateCallback = async <T>(run: (oldData: ChannelDetailDto[]) => Promise<T>) => {
+    const oldChannels = [...this.channels]
+    const result = await run(oldChannels)
+    const newChannels = [...this.channels]
+    this.updateCallbacks.forEach(callback => callback(newChannels, oldChannels))
+    return result
   }
 
   /*
@@ -50,38 +58,34 @@ export class ChannelStore {
     })
   }
 
-  async update(newData: ChannelDetailDto[]) {
-    const oldData = [...this.channels]
-    const evaluateResult = this.evaluate(oldData, newData)
-    const numberOfUpdatedChannels = newData.length - evaluateResult.unchanged.length
-    this.logger.log(`데이터 업데이트 ${numberOfUpdatedChannels}/${newData.length} (changed: ${evaluateResult.changed.length}, added: ${evaluateResult.added.length}, deleted: ${evaluateResult.deleted.length}, unchanged: ${evaluateResult.unchanged.length})`)
-    if(numberOfUpdatedChannels === 0) {
-      return 0
-    }
-    this.channels = newData
-    await this.sortChannels()
-    this.updateCallbacks.forEach(callback => callback(newData, oldData))
-    return evaluateResult.changed.length
-  }
+  update = (newData: ChannelDetailDto[]) =>
+    this.withUpdateCallback(async (oldData) => {
+      const evaluateResult = this.evaluate(oldData, newData)
+      const numberOfUpdatedChannels = newData.length - evaluateResult.unchanged.length
+      this.logger.log(`데이터 업데이트 ${numberOfUpdatedChannels}/${newData.length} (changed: ${evaluateResult.changed.length}, added: ${evaluateResult.added.length}, deleted: ${evaluateResult.deleted.length}, unchanged: ${evaluateResult.unchanged.length})`)
+      this.channels = newData
+      await this.sortChannels()
+      return numberOfUpdatedChannels
+    })
 
-  async updateOne(channelId: string, newData: ChannelDetailDto) {
-    const oldChannels = [...this.channels]
-    const newChannels = this.channels.map(channel =>
-      channel.channel.channelId === channelId ? newData : channel
-    )
-    this.channels = newChannels
-    await this.sortChannels()
-    this.updateCallbacks.forEach(callback => callback(newChannels, oldChannels))
-  }
+  updateOne = (channelId: string, newData: ChannelDetailDto) =>
+    this.withUpdateCallback(async () => {
+      this.channels = this.channels.map(channel =>
+        channel.channel.channelId === channelId ? newData : channel
+      )
+      await this.sortChannels()
+    })
 
-  async addChannel(channel: ChannelDetailDto) {
-    this.channels.push(channel)
-    await this.sortChannels()
-  }
+  addChannel = (channel: ChannelDetailDto) =>
+    this.withUpdateCallback(async () => {
+      this.channels.push(channel)
+      await this.sortChannels()
+    })
 
-  deleteChannel(channelId: string) {
-    this.channels = this.channels.filter(channel => channel.channelId !== channelId)
-  }
+  deleteChannel = (channelId: string) =>
+    this.withUpdateCallback(async () => {
+      this.channels = this.channels.filter(channel => channel.channelId !== channelId)
+    })
 
   async getChannels(pageable?: Pageable) {
     if( pageable ) {

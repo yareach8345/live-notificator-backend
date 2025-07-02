@@ -103,7 +103,7 @@ export class ChannelService {
     await this.channelRepository.deleteChannel(channelId)
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
 
-    this.channelStore.deleteChannel(channelId)
+    await this.channelStore.deleteChannel(channelId)
   }
 
   @Cron("0 * * * * *")
