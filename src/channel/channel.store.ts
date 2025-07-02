@@ -78,8 +78,11 @@ export class ChannelStore {
 
   addChannel = (channel: ChannelDetailDto) =>
     this.withUpdateCallback(async () => {
-      this.channels.push(channel)
-      await this.sortChannels()
+      const isAlreadyExists = this.channels.map(c => c.channelId).find(id => id === channel.channelId) !== undefined
+      if(isAlreadyExists) {
+        this.channels.push(channel)
+        await this.sortChannels()
+      }
     })
 
   deleteChannel = (channelId: string) =>
