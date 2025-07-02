@@ -4,10 +4,14 @@ import { ChannelImageStore } from './channel-image.store'
 import { ChannelImageRepository } from './channel-image.repository'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ChannelImageEntity } from './channel-image.entity'
+import { ChannelModule } from '../channel/channel.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChannelImageEntity])],
+  imports: [
+    TypeOrmModule.forFeature([ChannelImageEntity]),
+    ChannelModule
+  ],
   exports: [ChannelImageService],
-  providers: [ChannelImageService, ChannelImageStore, ChannelImageRepository],
+  providers: [ChannelImageService, ChannelImageRepository, ChannelImageStore],
 })
 export class ChannelImageModule {}

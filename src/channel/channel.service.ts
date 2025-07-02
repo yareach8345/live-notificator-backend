@@ -7,7 +7,6 @@ import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelDetailMapper } from './channel-detail.mapper'
-import { ChannelImageService } from '../channel-image/channel-image.service'
 import { ChannelImageDto } from '../channel-image/dto/channel-image.dto'
 
 @Injectable()
@@ -18,7 +17,6 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
-    private readonly imgService: ChannelImageService,
   ) {
     this.updateStore().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
@@ -40,14 +38,7 @@ export class ChannelService {
       )
     )
 
-    const imgs: ChannelImageDto[] = channelDetails.map(channel => ({
-      channelId: channel.channelId,
-      imageUrl: channel.channel.channelImageUrl
-    }))
-    // 이미지 최신화 작업
-    const imgRefreshPromise = this.imgService.refreshImages(imgs)
     const numberOfChangedChannel = await this.channelStore.update(channelDetails)
-    await Promise.all([imgRefreshPromise])
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
   }
 
@@ -91,10 +82,6 @@ export class ChannelService {
     this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId})`)
 
     await this.channelStore.addChannel(channelDetail)
-    await this.imgService.refreshImage({
-      channelId: channelDetail.channelId,
-      imageUrl: channelDetail.channel.channelImageUrl
-    })
 
     return channelDto
   }

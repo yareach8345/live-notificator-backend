@@ -7,6 +7,9 @@ import { ChannelImageDto } from './dto/channel-image.dto'
 import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
 import { ChannelImageRepository } from './channel-image.repository'
+import { ChannelStore } from '../channel/channel.store'
+import { generateEvaluator } from '../commons/utils/evaluation.util'
+import { channelDetailToChannelImage } from './channel-image.util'
 
 @Injectable()
 export class ChannelImageService {
@@ -37,18 +40,26 @@ export class ChannelImageService {
       .toBuffer()
   ]))
 
+  static readonly evolaute = generateEvaluator<ChannelImageDto, 'channelId'>('channelId')
+
   private readonly logger = new Logger(ChannelImageService.name)
 
   constructor(
     private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
+    channelStore: ChannelStore,
   ) {
     fsSync.mkdirSync(ChannelImageService.generateImgDirectoryPath('original'), { recursive: true })
     ChannelImageService.generateImgDirectoryPathBySize().map(path => fsSync.mkdirSync(path, { recursive: true }))
 
-    this.initializeImageStore().then( () => {
-      this.logger.log("채널 이미지 저장소 초기화 완료")
-    })
+    this.initializeImageStore()
+      .then( () => { this.logger.log("채널 이미지 저장소 초기화 완료") })
+      .then( () => {
+        channelStore.addUpdateCallback(async (newChannelDetails) => {
+          const newChannelImages: ChannelImageDto[] = newChannelDetails.map(channelDetailToChannelImage)
+          await this.refreshImages(newChannelImages)
+        })
+      })
   }
 
   static generateImgName(imageName: string) {
@@ -157,22 +168,9 @@ export class ChannelImageService {
     this.logger.log(`이미지 ${channelIds.length}개 삭제`)
   }
 
-  async refreshImage(newImageDto: ChannelImageDto) {
-    const chackResult = this.imageStore.evaluateImageChange(newImageDto)
-    switch (chackResult) {
-      case "new":
-      case "changed":
-        await this.downloadChannelImage(newImageDto)
-        break;
-      case "unchanged":
-        break;
-      default:
-        this.logger.warn("처리되지 않은 이미지 상태 처리 확인 필요")
-    }
-  }
-
   async refreshImages(newImageDtos: ChannelImageDto[]) {
-    const chackResult = this.imageStore.evaluateImagesChange(newImageDtos)
+    const storedImages = this.imageStore.getChannelImages()
+    const chackResult = ChannelImageService.evolaute(storedImages, newImageDtos)
 
     if(chackResult.deleted.length > 0) {
       await this.deleteChannelImages(chackResult.deleted.map(i => i.channelId))

@@ -11,6 +11,7 @@ import { ChzzkModule } from './chzzk/chzzk.module'
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module'
 import { join } from 'path'
 import { ChannelImageEntity } from './channel-image/channel-image.entity'
+import { ChannelImageModule } from './channel-image/channel-image.module'
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ChannelImageEntity } from './channel-image/channel-image.entity'
     AuthModule,
     ChannelModule,
     ChzzkModule,
+    ChannelImageModule
   ],
   controllers: [ AppController ],
   providers: [AppService],
