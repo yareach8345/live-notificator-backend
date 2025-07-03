@@ -1,5 +1,6 @@
 import { ChzzkChannelInfoDto } from "src/chzzk/dto/chzzk-channel-info.dto";
 import { ChannelInfoDto } from './dto/channel-info.dto'
+import { ChannelStateDto } from './dto/channel-state.dto'
 
 type ChannelMeta = {
   priority?: number,
@@ -21,6 +22,15 @@ export class ChannelInfoMapper {
         ...dto.detail
       },
       liveState: { ...dto.liveState },
+    }
+  }
+
+  static toChannelState(
+    channelInfo: ChannelInfoDto
+  ): ChannelStateDto {
+    return {
+      channelId: channelInfo.channelId,
+      state: channelInfo.liveState.isOpen
     }
   }
 }

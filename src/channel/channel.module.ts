@@ -6,13 +6,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ChannelEntity } from './channel.entity'
 import { ChzzkModule } from '../chzzk/chzzk.module'
 import { ChannelStore } from './channel.store'
+import { ChannelStateWatcher } from './channel-state.watcher'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChannelEntity]),
     ChzzkModule,
   ],
-  providers: [ChannelService, ChannelRepository, ChannelStore],
+  providers: [ChannelService, ChannelRepository, ChannelStore, ChannelStateWatcher],
   controllers: [ChannelController],
   exports: [ChannelService]
 })
