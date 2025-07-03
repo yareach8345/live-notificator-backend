@@ -1,7 +1,8 @@
+import { ChzzkLiveStateDto } from "./chzzk-live-state.dto";
+import { ChzzkChannelDetailDto } from './chzzk-channel-detail.dto'
+
 export interface ChzzkChannelInfoDto {
-  channelId: string,
-  displayName: string,
-  channelDescription: string
-  channelImageUrl?: string,
-  followerCount: number
+  channelId: string
+  detail: ChzzkChannelDetailDto,
+  liveState: ChzzkLiveStateDto,
 }

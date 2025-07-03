@@ -31,11 +31,11 @@ export class ChannelService {
     const channels = await this.channelRepository.getChannels()
 
     const priorityMap = new Map(channels.map(channel => [channel.channelId, channel]))
-    const chzzkChannelDetails = await this.chzzkService.getChannelDetails(
+    const chzzkChannelInfos = await this.chzzkService.getChannelInfos(
       channels.map(channel => channel.channelId)
     )
 
-    const channelInfo = chzzkChannelDetails.map(ch =>
+    const channelInfo = chzzkChannelInfos.map(ch =>
       ChannelInfoMapper.fromChzzk(
         ch,
         priorityMap.get(ch.channelId)!
@@ -73,9 +73,9 @@ export class ChannelService {
   }
 
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
-    const chzzkChannelDetail = await this.chzzkService.getChannelDetail(channelRegistrationDto.channelId)
+    const chzzkChannelInfo = await this.chzzkService.getChannelInfo(channelRegistrationDto.channelId)
 
-    const channelInfo = ChannelInfoMapper.fromChzzk(chzzkChannelDetail, channelRegistrationDto)
+    const channelInfo = ChannelInfoMapper.fromChzzk(chzzkChannelInfo, channelRegistrationDto)
 
     const channelDto: ChannelDto = {
       ...channelRegistrationDto,

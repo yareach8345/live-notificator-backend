@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ChzzkClient } from 'chzzk'
-import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
-import { getLiveStateDtoFromLiveStatus } from './chzzk.util'
 import { ChzzkChannelInfoDto } from './dto/chzzk-channel-info.dto'
+import { getLiveStateDtoFromLiveStatus } from './chzzk.util'
+import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
 import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
 import { PlatformBaseService } from '../commons/base/platform-base.service'
 
 @Injectable()
-export class ChzzkService extends PlatformBaseService<ChzzkChannelDetailDto> {
+export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
   private readonly chzzkClient: ChzzkClient
   protected readonly logger: Logger
 
@@ -24,7 +24,7 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelDetailDto> {
     })
   }
 
-  async getChannelInfo(channelId: string): Promise<ChzzkChannelInfoDto> {
+  async getChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
     const channel = await this.chzzkClient.channel(channelId)
 
     if(channel === null) {
@@ -47,10 +47,10 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelDetailDto> {
     return getLiveStateDtoFromLiveStatus(live)
   }
 
-  protected async loadChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
-    const channel = await this.getChannelInfo(channelId)
+  protected async loadChannelInfo(channelId: string): Promise<ChzzkChannelInfoDto> {
+    const detail = await this.getChannelDetail(channelId)
     const liveState = await this.getLiveState(channelId)
 
-    return { channelId, channel, liveState }
+    return { channelId, detail, liveState }
   }
 }
