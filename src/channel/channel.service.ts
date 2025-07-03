@@ -65,11 +65,11 @@ export class ChannelService {
   async getChannel(channelId: string) {
     const channel = this.channelStore.getChannel(channelId)
 
-    if(channel === null) {
+    if(channel === undefined) {
       throw new NotFoundException(`채널을 찾을 수 없습니다: ${channelId}`)
     }
 
-    return this.chzzkService.getChannelDetail(channelId)
+    return channel
   }
 
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
