@@ -6,10 +6,10 @@ import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
 import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
-import { ChannelDetailMapper } from './channel-detail.mapper'
+import { ChannelInfoMapper } from './channel-info.mapper'
 import {
   ChannelChangeObserver,
-  ChannelDetailTransformer,
+  ChannelInfoTransformer,
   createChannelChangeNotifier,
 } from './channel-change.notifier'
 
@@ -30,19 +30,19 @@ export class ChannelService {
   private async updateStore() {
     const channels = await this.channelRepository.getChannels()
 
-    const priorityMap = new Map(channels.map(channel => [channel.channelId, channel.priority]))
+    const priorityMap = new Map(channels.map(channel => [channel.channelId, channel]))
     const chzzkChannelDetails = await this.chzzkService.getChannelDetails(
       channels.map(channel => channel.channelId)
     )
 
-    const channelDetails = chzzkChannelDetails.map(ch =>
-      ChannelDetailMapper.fromChzzk(
+    const channelInfo = chzzkChannelDetails.map(ch =>
+      ChannelInfoMapper.fromChzzk(
         ch,
-        priorityMap.get(ch.channelId) ?? 255
+        priorityMap.get(ch.channelId)!
       )
     )
 
-    const numberOfChangedChannel = await this.channelStore.update(channelDetails)
+    const numberOfChangedChannel = await this.channelStore.update(channelInfo)
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
   }
 
@@ -75,18 +75,18 @@ export class ChannelService {
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
     const chzzkChannelDetail = await this.chzzkService.getChannelDetail(channelRegistrationDto.channelId)
 
-    const channelDetail = ChannelDetailMapper.fromChzzk(chzzkChannelDetail, channelRegistrationDto.priority ?? 255)
+    const channelInfo = ChannelInfoMapper.fromChzzk(chzzkChannelDetail, channelRegistrationDto)
 
     const channelDto: ChannelDto = {
       ...channelRegistrationDto,
       color: channelRegistrationDto.color?.toLowerCase(),
-      displayName: channelDetail.channel.displayName,
+      displayName: channelInfo.detail.displayName,
     }
 
     await this.channelRepository.saveChannel(channelDto)
     this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId})`)
 
-    await this.channelStore.addChannel(channelDetail)
+    await this.channelStore.addChannel(channelInfo)
 
     return channelDto
   }
@@ -98,8 +98,8 @@ export class ChannelService {
     await this.channelStore.deleteChannel(channelId)
   }
 
-  channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromDetail: ChannelDetailTransformer<R>): ChannelChangeObserver<R> {
-    const [emitter, observer] = createChannelChangeNotifier<R>(transformFromDetail)
+  channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
+    const [emitter, observer] = createChannelChangeNotifier<R>(transformFromChannelInfo)
     this.channelStore.addUpdateCallback(emitter.emit)
     return observer
   }

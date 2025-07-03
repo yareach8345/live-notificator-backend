@@ -8,7 +8,7 @@ import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
 import { ChannelImageRepository } from './channel-image.repository'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
-import { channelDetailToChannelImage } from './channel-image.util'
+import { channelInfoToChannelImage } from './channel-image.util'
 import { ChannelService } from '../channel/channel.service'
 import { ChannelChangeObserver } from '../channel/channel-change.notifier'
 
@@ -58,7 +58,7 @@ export class ChannelImageService {
     this.initializeImageStore()
       .then( () => { this.logger.log("채널 이미지 저장소 초기화 완료") })
       .then( () => {
-        this.channelChangeObserver = channelService.channelChangeSubscribe(channelDetailToChannelImage)
+        this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
         this.channelChangeObserver.subscribe((_, channels) => this.refreshImages(channels))
       })
   }

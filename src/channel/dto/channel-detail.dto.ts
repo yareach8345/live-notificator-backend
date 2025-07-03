@@ -1,10 +1,8 @@
-import { LiveStateDto } from "./live-state.dto";
-import { ChannelInfoDto } from './channel-info.dto'
-
 export interface ChannelDetailDto {
-  channelId: string
+  displayName: string,
+  channelDescription: string
+  channelImageUrl?: string,
+  followerCount: number,
   priority: number,
-  platform: string,
-  channel: ChannelInfoDto,
-  liveState: LiveStateDto,
+  color?: string
 }

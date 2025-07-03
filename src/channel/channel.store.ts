@@ -1,26 +1,26 @@
-import { ChannelDetailDto } from './dto/channel-detail.dto'
+import { ChannelInfoDto } from './dto/channel-info.dto'
 import { filter, from, lastValueFrom, skip, take, toArray } from 'rxjs'
 import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 
-type UpdateCallback = (newChannelDetails: ChannelDetailDto[], oldChannelDetails: ChannelDetailDto[]) => any
+type UpdateCallback = (newChannelInfos: ChannelInfoDto[], oldChannelInfos: ChannelInfoDto[]) => any
 
 @Injectable()
 export class ChannelStore {
-  private channels: ChannelDetailDto[] = []
+  private channels: ChannelInfoDto[] = []
 
   private logger: Logger = new Logger(ChannelStore.name)
 
   private readonly updateCallbacks: UpdateCallback[] = []
 
-  private readonly evaluate = generateDiffEvaluator<ChannelDetailDto, 'channelId'>('channelId')
+  private readonly evaluate = generateDiffEvaluator<ChannelInfoDto, 'channelId'>('channelId')
 
   addUpdateCallback(callback: UpdateCallback) {
     this.updateCallbacks.push(callback)
   }
 
-  private withUpdateCallback = async <T>(run: (oldData: ChannelDetailDto[]) => Promise<T>) => {
+  private withUpdateCallback = async <T>(run: (oldData: ChannelInfoDto[]) => Promise<T>) => {
     const oldChannels = [...this.channels]
     const result = await run(oldChannels)
     const newChannels = [...this.channels]
@@ -42,7 +42,7 @@ export class ChannelStore {
         return c1.liveState.isOpen ? -1 : 1
       }
 
-      const priorityDiff = c1.priority - c2.priority
+      const priorityDiff = c1.detail.priority - c2.detail.priority
       if(priorityDiff !== 0) {
         // 2. 방송 상태가 같은 경우 우선순위 높은 것이 우선
         return priorityDiff
@@ -54,11 +54,11 @@ export class ChannelStore {
       }
 
       // 4. 방송이 둘 다 꺼져있고 우선순위가 같으면 팔로워 수 비교
-      return c2.channel.followerCount - c1.channel.followerCount
+      return c2.detail.followerCount - c1.detail.followerCount
     })
   }
 
-  update = (newData: ChannelDetailDto[]) =>
+  update = (newData: ChannelInfoDto[]) =>
     this.withUpdateCallback(async (oldData) => {
       const evaluateResult = this.evaluate(oldData, newData)
       const numberOfUpdatedChannels = newData.length - evaluateResult.unchanged.length
@@ -68,15 +68,15 @@ export class ChannelStore {
       return numberOfUpdatedChannels
     })
 
-  updateOne = (channelId: string, newData: ChannelDetailDto) =>
+  updateOne = (channelId: string, newData: ChannelInfoDto) =>
     this.withUpdateCallback(async () => {
       this.channels = this.channels.map(channel =>
-        channel.channel.channelId === channelId ? newData : channel
+        channel.channelId === channelId ? newData : channel
       )
       await this.sortChannels()
     })
 
-  addChannel = (channel: ChannelDetailDto) =>
+  addChannel = (channel: ChannelInfoDto) =>
     this.withUpdateCallback(async () => {
       const isAlreadyExists = this.channels.map(c => c.channelId).find(id => id === channel.channelId) !== undefined
       if(!isAlreadyExists) {
@@ -104,7 +104,7 @@ export class ChannelStore {
   }
 
   getChannel(id: string) {
-    return this.channels.find(channel => channel.channel.channelId === id)
+    return this.channels.find(channel => channel.channelId === id)
   }
 
   getChannelByState(isOpen: boolean, pageable?: Pageable) {

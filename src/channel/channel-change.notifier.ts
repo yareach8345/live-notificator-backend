@@ -1,8 +1,8 @@
-import { ChannelDetailDto } from './dto/channel-detail.dto'
+import { ChannelInfoDto } from './dto/channel-info.dto'
 import { EvaluationResultDto } from '../commons/dto/evaluation-result.dto'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 
-export type ChannelDetailTransformer<R> = (channelDetailDto: ChannelDetailDto) => R
+export type ChannelInfoTransformer<R> = (channelInfoDto: ChannelInfoDto) => R
 
 export type OnUpdateCallback<T> = (data: EvaluationResultDto<T>, allData: T[]) => void
 
@@ -11,7 +11,7 @@ export interface ChannelChangeObserver<R extends Record<'channelId', string>>  {
 }
 
 export interface ChannelChangeEmitter {
-  emit: (newChannelDetail: ChannelDetailDto[], oldChannelDetail: ChannelDetailDto[]) => void
+  emit: (newChannelInfo: ChannelInfoDto[], oldChannelInfo: ChannelInfoDto[]) => void
 }
 
 export class ChannelChangeNotifier<R extends Record<'channelId', string>> implements ChannelChangeObserver<R>, ChannelChangeEmitter {
@@ -19,19 +19,19 @@ export class ChannelChangeNotifier<R extends Record<'channelId', string>> implem
   
   private readonly evaluate = generateDiffEvaluator<R, 'channelId'>('channelId')
 
-  constructor(private readonly transformerFromChannelDetailToR: ChannelDetailTransformer<R>) {}
+  constructor(private readonly transformerFromChannelInfoToR: ChannelInfoTransformer<R>) {}
 
   subscribe = (callback: OnUpdateCallback<R>) => {
     this.callbacks.push(callback)
   }
 
-  emit = (newChannelDetail: ChannelDetailDto[], oldChannelDetail: ChannelDetailDto[]) => {
-    const transformedNewChannel = newChannelDetail.map(this.transformerFromChannelDetailToR)
-    const transformedOldChannel = oldChannelDetail.map(this.transformerFromChannelDetailToR)
+  emit = (newChannelInfo: ChannelInfoDto[], oldChannelInfo: ChannelInfoDto[]) => {
+    const transformedNewChannel = newChannelInfo.map(this.transformerFromChannelInfoToR)
+    const transformedOldChannel = oldChannelInfo.map(this.transformerFromChannelInfoToR)
 
     const evaluationResult = this.evaluate(transformedOldChannel, transformedNewChannel)
 
-    if(evaluationResult.unchanged.length === newChannelDetail.length) {
+    if(evaluationResult.unchanged.length === newChannelInfo.length) {
       return
     }
 
@@ -40,9 +40,9 @@ export class ChannelChangeNotifier<R extends Record<'channelId', string>> implem
 }
 
 export function createChannelChangeNotifier<R extends Record<'channelId', string>>(
-  transformerFromChannelDetailToR: ChannelDetailTransformer<R>
+  transformerFromChannelInfoToR: ChannelInfoTransformer<R>
 ): [ChannelChangeEmitter, ChannelChangeObserver<R>] {
-  const notifier = new ChannelChangeNotifier<R>(transformerFromChannelDetailToR)
+  const notifier = new ChannelChangeNotifier<R>(transformerFromChannelInfoToR)
   return [
     notifier as ChannelChangeEmitter,
     notifier as ChannelChangeObserver<R>
