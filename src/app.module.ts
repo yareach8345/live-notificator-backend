@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { requireEnv } from './commons/utils/env.util'
 import { ChannelEntity } from './channel/channel.entity'
 import { ChannelModule } from './channel/channel.module'
-import { ChzzkModule } from './chzzk/chzzk.module'
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module'
 import { join } from 'path'
 import { ChannelImageEntity } from './channel-image/channel-image.entity'
@@ -32,7 +31,6 @@ import { DeviceModule } from './device/device.module'
     }),
     AuthModule,
     ChannelModule,
-    ChzzkModule,
     ChannelImageModule,
     DeviceModule,
   ],

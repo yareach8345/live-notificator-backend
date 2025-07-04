@@ -7,11 +7,13 @@ import { ChannelEntity } from './channel.entity'
 import { ChzzkModule } from '../chzzk/chzzk.module'
 import { ChannelStore } from './channel.store'
 import { ChannelStateWatcher } from './channel-state.watcher'
+import { MqttModule } from '../mqtt/mqtt.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChannelEntity]),
     ChzzkModule,
+    MqttModule,
   ],
   providers: [ChannelService, ChannelRepository, ChannelStore, ChannelStateWatcher],
   controllers: [ChannelController],
