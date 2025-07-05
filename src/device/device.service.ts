@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
-import { channelInfoDtoMadeMinimal, projectChannelInfoToChannelInfoChangeDto } from './device.util'
+import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './device.util'
 import { MqttService } from '../mqtt/mqtt.service'
+import * as _ from 'lodash'
+import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
+import { getDifferingKeys, getUpdatedFields } from '../commons/utils/diff'
 
 @Injectable()
 export class DeviceService {
@@ -11,11 +14,22 @@ export class DeviceService {
     mqttService: MqttService,
   ) {
     channelService
-      .channelChangeSubscribe(projectChannelInfoToChannelInfoChangeDto)
-      .subscribe(({changed}) => {
-        changed.forEach(channelInfo => {
-          mqttService.notifyChannelInfoChange(channelInfo.channelId, channelInfo)
-        })
+      .channelChangeSubscribe(projectChannelInfoForCompare)
+      .subscribe(({changed, previous}) => {
+        const previousMap = new Map<string, ChannelInfoChangeDto>( previous.map(before => [ before.channelId, compareDataToChangeDto(before) ]) )
+        changed
+          .map(after => ({
+            channelId: after.channelId,
+            after: compareDataToChangeDto(after),
+            before: previousMap.get(after.channelId)!,
+          }))
+          .map(({ channelId, before, after}) => ({
+            channelId,
+            diff: getUpdatedFields(before, after)
+          }))
+          .forEach(({ channelId, diff}) => {
+            mqttService.notifyChannelInfoChange(channelId, diff)
+          })
       })
   }
 

@@ -60,7 +60,10 @@ export class ChannelImageService {
       .then( () => {
         this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
         this.channelChangeObserver.subscribe((er) => this.refreshImages([
-          ...er.added, ...er.deleted, ...er.changed, ...er.unchanged
+          ...er.added,
+          ...er.deleted,
+          ...er.changed,
+          ...er.unchanged
         ]))
       })
   }

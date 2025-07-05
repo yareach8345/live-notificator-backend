@@ -1,6 +1,7 @@
 import { MinimalChannelInfoDto, MinimalLiveStateDto } from './dto/minimal-channel-info.dto'
 import { ChannelInfoDto } from '../channel/dto/channel-info.dto'
 import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
+import { ComparableChannelInfoDto } from './dto/comparable-channel-info.dto'
 
 export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : ChannelInfoDto): MinimalChannelInfoDto {
   const minimalLiveState: MinimalLiveStateDto =
@@ -26,7 +27,7 @@ export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : Chann
   }
 }
 
-export function projectChannelInfoToChannelInfoChangeDto(channelInfoDto: ChannelInfoDto): ChannelInfoChangeDto {
+export function projectChannelInfoForCompare(channelInfoDto: ChannelInfoDto): ComparableChannelInfoDto {
   const { isOpen, state, tags, ...detectableLiveStateInfo } = { tags: undefined, ...channelInfoDto.liveState }
 
   const { channelDescription, ...detectableChannelDetail } = channelInfoDto.detail
@@ -35,5 +36,13 @@ export function projectChannelInfoToChannelInfoChangeDto(channelInfoDto: Channel
     channelId: channelInfoDto.channelId,
     detail: detectableChannelDetail,
     liveState: detectableLiveStateInfo,
+  }
+}
+
+export function compareDataToChangeDto(comparableChannelInfoDto: ComparableChannelInfoDto): ChannelInfoChangeDto {
+  const { channelId, detail, liveState } = comparableChannelInfoDto
+  return {
+    ...detail,
+    ...liveState,
   }
 }
