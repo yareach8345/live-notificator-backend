@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
-import { channelInfoDtoMadeMinimal } from './device.util'
+import { channelInfoDtoMadeMinimal, projectChannelInfoToChannelInfoChangeDto } from './device.util'
+import { MqttService } from '../mqtt/mqtt.service'
 
 @Injectable()
 export class DeviceService {
-  constructor(private readonly channelService: ChannelService) {}
+  constructor(
+    private readonly channelService: ChannelService,
+    mqttService: MqttService,
+  ) {
+    channelService
+      .channelChangeSubscribe(projectChannelInfoToChannelInfoChangeDto)
+      .subscribe(({changed}) => {
+        changed.forEach(channelInfo => {
+          mqttService.notifyChannelInfoChange(channelInfo.channelId, channelInfo)
+        })
+      })
+  }
 
   async getChannels(pageable?: Pageable) {
     const result = await this.channelService.getChannels(pageable)

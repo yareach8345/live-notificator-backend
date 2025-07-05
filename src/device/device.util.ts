@@ -1,5 +1,6 @@
 import { MinimalChannelInfoDto, MinimalLiveStateDto } from './dto/minimal-channel-info.dto'
 import { ChannelInfoDto } from '../channel/dto/channel-info.dto'
+import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
 
 export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : ChannelInfoDto): MinimalChannelInfoDto {
   const minimalLiveState: MinimalLiveStateDto =
@@ -22,5 +23,17 @@ export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : Chann
       priority: detail.priority,
     },
     liveState: minimalLiveState,
+  }
+}
+
+export function projectChannelInfoToChannelInfoChangeDto(channelInfoDto: ChannelInfoDto): ChannelInfoChangeDto {
+  const { isOpen, state, tags, ...detectableLiveStateInfo } = { tags: undefined, ...channelInfoDto.liveState }
+
+  const { channelDescription, ...detectableChannelDetail } = channelInfoDto.detail
+
+  return {
+    channelId: channelInfoDto.channelId,
+    detail: detectableChannelDetail,
+    liveState: detectableLiveStateInfo,
   }
 }

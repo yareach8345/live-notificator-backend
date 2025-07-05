@@ -4,7 +4,7 @@ import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 
 export type ChannelInfoTransformer<R> = (channelInfoDto: ChannelInfoDto) => R
 
-export type OnUpdateCallback<T> = (data: EvaluationResultDto<T>, allData: T[]) => void
+export type OnUpdateCallback<T> = (data: EvaluationResultDto<T>) => void
 
 export interface ChannelChangeObserver<R extends Record<'channelId', string>>  {
   subscribe: (callback: OnUpdateCallback<R>) => void
@@ -35,7 +35,7 @@ export class ChannelChangeNotifier<R extends Record<'channelId', string>> implem
       return
     }
 
-    this.callbacks.forEach(callback => callback(evaluationResult, transformedNewChannel))
+    this.callbacks.forEach(callback => callback(evaluationResult))
   }
 }
 

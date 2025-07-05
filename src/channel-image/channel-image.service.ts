@@ -59,7 +59,9 @@ export class ChannelImageService {
       .then( () => { this.logger.log("채널 이미지 저장소 초기화 완료") })
       .then( () => {
         this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
-        this.channelChangeObserver.subscribe((_, channels) => this.refreshImages(channels))
+        this.channelChangeObserver.subscribe((er) => this.refreshImages([
+          ...er.added, ...er.deleted, ...er.changed, ...er.unchanged
+        ]))
       })
   }
 

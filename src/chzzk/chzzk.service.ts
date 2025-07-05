@@ -33,7 +33,6 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
     }
 
     return {
-      channelId: channel.channelId,
       channelImageUrl: channel.channelImageUrl,
       displayName: channel.channelName,
       channelDescription: channel.channelDescription,
