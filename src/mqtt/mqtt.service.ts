@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common'
 import mqtt, { MqttClient } from 'mqtt'
 import { ChannelStateDto } from '../channel/dto/channel-state.dto'
 import { ChannelInfoChangeDto } from './dto/channel-info-change.dto'
-import { ca } from 'zod/dist/types/v4/locales'
 
 @Injectable()
 export class MqttService {

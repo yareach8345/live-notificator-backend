@@ -3,9 +3,8 @@ import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
 import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './device.util'
 import { MqttService } from '../mqtt/mqtt.service'
-import * as _ from 'lodash'
 import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
-import { getDifferingKeys, getUpdatedFields } from '../commons/utils/diff'
+import { getUpdatedFields } from '../commons/utils/diff'
 
 @Injectable()
 export class DeviceService {

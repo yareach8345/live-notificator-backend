@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
 
-type UpdateCallback = (newChannelInfos: ChannelInfoDto[], oldChannelInfos: ChannelInfoDto[]) => any
+export type ChannelInfoUpdateCallback = (newChannelInfos: ChannelInfoDto[], oldChannelInfos: ChannelInfoDto[]) => any
 
 @Injectable()
 export class ChannelStore {
@@ -12,11 +12,11 @@ export class ChannelStore {
 
   private logger: Logger = new Logger(ChannelStore.name)
 
-  private readonly updateCallbacks: UpdateCallback[] = []
+  private readonly updateCallbacks: ChannelInfoUpdateCallback[] = []
 
   private readonly evaluate = generateDiffEvaluator<ChannelInfoDto, 'channelId'>('channelId')
 
-  addUpdateCallback(callback: UpdateCallback) {
+  addUpdateCallback(callback: ChannelInfoUpdateCallback) {
     this.updateCallbacks.push(callback)
   }
 

@@ -4,7 +4,7 @@ import { Pageable } from 'src/commons/dto/page.dto';
 import { ChzzkService } from '../chzzk/chzzk.service'
 import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
-import { ChannelStore } from './channel.store'
+import { ChannelInfoUpdateCallback, ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelInfoMapper } from './channel-info.mapper'
 import {
@@ -102,6 +102,10 @@ export class ChannelService {
     const [emitter, observer] = createChannelChangeNotifier<R>(transformFromChannelInfo)
     this.channelStore.addUpdateCallback(emitter.emit)
     return observer
+  }
+
+  channelInfoUpdateSubscribe(callback: ChannelInfoUpdateCallback) {
+    this.channelStore.addUpdateCallback(callback)
   }
 
   @Cron("0 * * * * *")
