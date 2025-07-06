@@ -26,6 +26,7 @@ export class DeviceService {
             channelId,
             diff: getUpdatedFields(before, after)
           }))
+          .filter(({ diff }) => Object.keys(diff).length > 0)
           .forEach(({ channelId, diff}) => {
             messageDispatcherService.notifyChannelInfoChange(channelId, diff)
           })
