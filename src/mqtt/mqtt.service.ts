@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common'
 import mqtt, { MqttClient } from 'mqtt'
 import { ChannelStateDto } from '../channel/dto/channel-state.dto'
 import { ChannelInfoChangeDto } from './dto/channel-info-change.dto'
+import { UpdateNotifyDto } from './dto/update-notify.dto'
+import { dateToString } from '../commons/utils/date.util'
 
 @Injectable()
 export class MqttService {
@@ -32,11 +34,14 @@ export class MqttService {
       `channel/${channelId}/info-changed`,
       JSON.stringify(channelInfoChangeDto),
     )
-    // Object.entries(channelInfoChangeDto).forEach(([key, value]) => {
-    //   this.mqttClient.publish(
-    //     `channel/${channelId}/info-changed/${key}`,
-    //     `${value}`
-    //   )
-    // })
+  }
+
+  notifyChannelInfoUpdate(updateDto: UpdateNotifyDto) {
+    const datetime = dateToString(updateDto.date)
+    this.logger.log(`채널 업데이터 notify mqtt publish 발생 : ${datetime}`)
+    this.mqttClient.publish(
+      'updated-at',
+      datetime
+    )
   }
 }

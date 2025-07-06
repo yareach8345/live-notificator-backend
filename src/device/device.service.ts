@@ -4,7 +4,7 @@ import { Pageable } from '../commons/dto/page.dto'
 import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './device.util'
 import { MqttService } from '../mqtt/mqtt.service'
 import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
-import { getUpdatedFields } from '../commons/utils/diff'
+import { getUpdatedFields } from '../commons/utils/diff.util'
 
 @Injectable()
 export class DeviceService {

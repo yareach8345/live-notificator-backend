@@ -12,6 +12,7 @@ import {
   ChannelInfoTransformer,
   createChannelChangeNotifier,
 } from './channel-change.notifier'
+import { MqttService } from '../mqtt/mqtt.service'
 
 @Injectable()
 export class ChannelService {
@@ -21,9 +22,15 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
+    mqttService: MqttService,
   ) {
     this.updateStore().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
+    })
+    channelStore.addUpdateCallback(() => {
+      mqttService.notifyChannelInfoUpdate({
+        date: new Date(),
+      })
     })
   }
 
