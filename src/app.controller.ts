@@ -1,13 +1,13 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
-import { GoogleAuthGuard } from "./auth/auth.guard";
+import { LoginGuard } from './auth/auth.guard';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @UseGuards(GoogleAuthGuard)
   @Get()
+  @UseGuards(LoginGuard)
   getHello(): string {
     return this.appService.getHello();
   }

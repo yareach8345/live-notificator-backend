@@ -6,11 +6,11 @@ import { getPageable } from '../commons/utils/controller.util'
 import { RegisterChannelDto } from "./dto/register-channel.dto";
 
 @Controller('channels')
-@UseGuards(LoginGuard)
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
   @Get("ids")
+  @UseGuards(LoginGuard)
   async getChannelIds(@Req() req: Request, @Res() res: Response) {
     const pageable = getPageable(req.query)
 
@@ -20,6 +20,7 @@ export class ChannelController {
   }
 
   @Get()
+  @UseGuards(LoginGuard)
   async getChannels(@Req() req: Request, @Res() res: Response) {
     const pageable = getPageable(req.query)
 
@@ -29,6 +30,7 @@ export class ChannelController {
   }
 
   @Get(":channelId")
+  @UseGuards(LoginGuard)
   async getChannel(@Res() res: Response, @Param("channelId") channelId: string) {
     const channel = await this.channelService.getChannel(channelId)
 
@@ -36,6 +38,7 @@ export class ChannelController {
   }
 
   @Get("states/open")
+  @UseGuards(LoginGuard)
   async getOpenChannels(@Res() res: Response) {
     const openChannels = await this.channelService.getOpenChannels()
 
@@ -43,6 +46,7 @@ export class ChannelController {
   }
 
   @Get("states/close")
+  @UseGuards(LoginGuard)
   async getCloseChannels(@Res() res: Response) {
     const closeChannels = await this.channelService.getCloseChannels()
 
@@ -50,6 +54,7 @@ export class ChannelController {
   }
 
   @Post()
+  @UseGuards(LoginGuard)
   async registerChannel(@Res() res: Response, @Body() registerChannelDto: RegisterChannelDto) {
     const created = await this.channelService.registerChannel(registerChannelDto)
 
@@ -57,6 +62,7 @@ export class ChannelController {
   }
 
   @Delete(":channelId")
+  @UseGuards(LoginGuard)
   async unregisterChannel(@Res() res: Response, @Param("channelId") channelId: string) {
     await this.channelService.unregisterChannel(channelId)
 

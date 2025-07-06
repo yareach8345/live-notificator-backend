@@ -1,6 +1,7 @@
-import { Controller, Get, Logger, Query, Sse } from "@nestjs/common";
+import { Controller, Get, Logger, Query, Sse, UseGuards } from "@nestjs/common";
 import { SseService } from "./sse.service";
 import { Observable } from "rxjs";
+import { LoginGuard } from '../auth/auth.guard'
 
 @Controller('sse')
 export class SseController {
@@ -9,6 +10,7 @@ export class SseController {
   constructor(private readonly sseService: SseService) {}
 
   @Sse()
+  @UseGuards(LoginGuard)
   connectSse() {
     const {
       sseClient$,
@@ -31,11 +33,13 @@ export class SseController {
   }
 
   @Get('/connections')
+  @UseGuards(LoginGuard)
   getConnections() {
     return this.sseService.getConnectionDetails()
   }
 
   @Get('/test')
+  @UseGuards(LoginGuard)
   getSseTest(
     @Query('message') message: string,
     @Query('event') event?: string
