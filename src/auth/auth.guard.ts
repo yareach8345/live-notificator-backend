@@ -33,7 +33,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
 export class LoginGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
-    const result = request.isAuthenticated() || true
+    const result = request.isAuthenticated()
 
     if(result) {
       return true
