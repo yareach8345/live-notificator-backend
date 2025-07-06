@@ -1,10 +1,10 @@
-import { Controller, Get, Param, Req, Res } from "@nestjs/common";
+import { Controller, Get, Param, Req, Res, UseGuards } from "@nestjs/common";
 import { DeviceService } from './device.service'
 import { Request, Response } from 'express'
 import { getPageable } from '../commons/utils/controller.util'
 
-@Controller('device')
-export class DeviceController {
+@Controller('device/channels')
+export class DeviceChannelController {
   constructor(private deviceService: DeviceService) {}
 
   @Get()
