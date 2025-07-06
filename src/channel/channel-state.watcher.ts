@@ -24,7 +24,7 @@ export class ChannelStateWatcher {
     })
   }
 
-  notifyChannelStateChange(channelState: ChannelStateDto) {
+  notifyChannelStateChange = (channelState: ChannelStateDto) => {
     this.messageDispatcherService.notifyChannelStateChange(channelState)
   }
 }
