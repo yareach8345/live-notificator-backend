@@ -41,6 +41,7 @@ export function projectChannelInfoForCompare(channelInfoDto: ChannelInfoDto): Co
 
 export function compareDataToChangeDto(comparableChannelInfoDto: ComparableChannelInfoDto): ChannelInfoChangeDto {
   const { channelId, detail, liveState } = comparableChannelInfoDto
+  void channelId
   return {
     ...detail,
     ...liveState,
