@@ -22,6 +22,7 @@ export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : Chann
       displayName: detail.displayName,
       followerCount: detail.followerCount,
       priority: detail.priority,
+      color: detail.color,
     },
     liveState: minimalLiveState,
   }
