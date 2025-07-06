@@ -7,12 +7,12 @@ import { ChannelDto } from './dto/channel.dto';
 import { ChannelInfoUpdateCallback, ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelInfoMapper } from './channel-info.mapper'
+import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
 import {
   ChannelChangeObserver,
   ChannelInfoTransformer,
   createChannelChangeNotifier,
 } from './channel-change.notifier'
-import { MqttService } from '../mqtt/mqtt.service'
 
 @Injectable()
 export class ChannelService {
@@ -22,13 +22,13 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
-    mqttService: MqttService,
+    messageDispatcher: MessageDispatcherService,
   ) {
     this.updateStore().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
     })
     channelStore.addUpdateCallback(() => {
-      mqttService.notifyChannelInfoUpdate({
+      messageDispatcher.notifyChannelInfoUpdate({
         date: new Date(),
       })
     })

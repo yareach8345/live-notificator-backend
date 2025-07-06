@@ -1,4 +1,4 @@
-import { ChannelDetailChangeDto, LiveStateChangeDto } from '../../mqtt/dto/channel-info-change.dto'
+import { ChannelDetailChangeDto, LiveStateChangeDto } from '../../message-dispatcher/dto/channel-info-change.dto'
 
 export interface ComparableChannelInfoDto {
   channelId: string,

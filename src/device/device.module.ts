@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common'
 import { ChannelModule } from '../channel/channel.module'
 import { DeviceController } from './device.controller'
 import { DeviceService } from './device.service'
-import { MqttModule } from '../mqtt/mqtt.module'
+import { MessageDispatcherModule } from '../message-dispatcher/message-dispatcher.module'
 
 @Module({
   imports: [
     ChannelModule,
-    MqttModule
+    MessageDispatcherModule,
   ],
   providers: [DeviceService],
   controllers: [DeviceController]

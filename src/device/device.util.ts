@@ -1,6 +1,6 @@
 import { MinimalChannelInfoDto, MinimalLiveStateDto } from './dto/minimal-channel-info.dto'
 import { ChannelInfoDto } from '../channel/dto/channel-info.dto'
-import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
+import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
 import { ComparableChannelInfoDto } from './dto/comparable-channel-info.dto'
 
 export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : ChannelInfoDto): MinimalChannelInfoDto {

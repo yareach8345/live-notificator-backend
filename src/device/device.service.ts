@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
 import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './device.util'
-import { MqttService } from '../mqtt/mqtt.service'
-import { ChannelInfoChangeDto } from '../mqtt/dto/channel-info-change.dto'
+import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
 import { getUpdatedFields } from '../commons/utils/diff.util'
+import { MessageDispatcherService } from 'src/message-dispatcher/message-dispatcher.service'
 
 @Injectable()
 export class DeviceService {
   constructor(
     private readonly channelService: ChannelService,
-    mqttService: MqttService,
+    messageDispatcherService: MessageDispatcherService,
   ) {
     channelService
       .channelChangeSubscribe(projectChannelInfoForCompare)
@@ -27,7 +27,7 @@ export class DeviceService {
             diff: getUpdatedFields(before, after)
           }))
           .forEach(({ channelId, diff}) => {
-            mqttService.notifyChannelInfoChange(channelId, diff)
+            messageDispatcherService.notifyChannelInfoChange(channelId, diff)
           })
       })
   }

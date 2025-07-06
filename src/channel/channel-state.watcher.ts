@@ -3,7 +3,7 @@ import { ChannelStateDto } from './dto/channel-state.dto'
 import { ChannelService } from './channel.service'
 import { Injectable, Logger } from '@nestjs/common'
 import { ChannelInfoMapper } from './channel-info.mapper'
-import { MqttService } from '../mqtt/mqtt.service'
+import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
 
 @Injectable()
 export class ChannelStateWatcher {
@@ -11,7 +11,7 @@ export class ChannelStateWatcher {
   private readonly logger: Logger = new Logger(ChannelStateWatcher.name)
 
   constructor(
-    private readonly mqttService: MqttService,
+    private readonly messageDispatcherService: MessageDispatcherService,
     channelService: ChannelService,
   ) {
     this.stateChannelChangeObserver = channelService.channelChangeSubscribe(ChannelInfoMapper.toChannelState)
@@ -25,6 +25,6 @@ export class ChannelStateWatcher {
   }
 
   notifyChannelStateChange(channelState: ChannelStateDto) {
-    this.mqttService.notifyChannelStateChange(channelState)
+    this.messageDispatcherService.notifyChannelStateChange(channelState)
   }
 }
