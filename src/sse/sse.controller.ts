@@ -9,7 +9,7 @@ export class SseController {
 
   constructor(private readonly sseService: SseService) {}
 
-  @Sse()
+  @Sse('/connect')
   @UseGuards(LoginGuard)
   connectSse() {
     const {

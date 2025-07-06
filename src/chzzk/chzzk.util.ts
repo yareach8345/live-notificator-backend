@@ -1,5 +1,6 @@
-import { LiveStatus } from 'chzzk'
+import { Channel, LiveStatus } from 'chzzk'
 import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
+import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
 
 export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): ChzzkLiveStateDto {
   if(liveStatus === null) {
@@ -23,5 +24,14 @@ export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): Ch
       state: 'closed',
       isOpen: false,
     }
+  }
+}
+
+export function getChannelDetailDtoFromChannelDto(channel: Channel): ChzzkChannelDetailDto {
+  return {
+    channelImageUrl: channel.channelImageUrl,
+    displayName: channel.channelName,
+    channelDescription: channel.channelDescription,
+    followerCount: channel.followerCount
   }
 }

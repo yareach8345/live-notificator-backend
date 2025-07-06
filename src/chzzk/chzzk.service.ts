@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ChzzkClient } from 'chzzk'
 import { ChzzkChannelInfoDto } from './dto/chzzk-channel-info.dto'
-import { getLiveStateDtoFromLiveStatus } from './chzzk.util'
+import { getChannelDetailDtoFromChannelDto, getLiveStateDtoFromLiveStatus } from './chzzk.util'
 import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
 import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
@@ -32,12 +32,7 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
       throw new RuntimeException(`채널에 대한 정보를 찾을 수 없습니다. 채널 ID를 확인 해주세요. : ${channelId}`)
     }
 
-    return {
-      channelImageUrl: channel.channelImageUrl,
-      displayName: channel.channelName,
-      channelDescription: channel.channelDescription,
-      followerCount: channel.followerCount
-    }
+    return getChannelDetailDtoFromChannelDto(channel)
   }
 
   async getLiveState(channelId: string): Promise<ChzzkLiveStateDto> {
