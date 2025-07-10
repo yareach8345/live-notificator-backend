@@ -11,15 +11,18 @@ export class AuthController {
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    return res.redirect('/')
+    const user = req.user
+
+    const loginResultDto = {
+      success: true,
+      user,
+    }
+
+    res.send(loginResultDto)
   }
 
   @Get('check')
   async checkSession(@Req() req: Request, @Res() res: Response) {
-    console.log('SESSION ID:', req.sessionID);
-    console.log('SESSION:', req.session);
-    console.log('USER:', req.user);
-    console.log('AUTH?', req.isAuthenticated?.());
     return res.send({
       sessionId: req.sessionID,
       session: req.session,
