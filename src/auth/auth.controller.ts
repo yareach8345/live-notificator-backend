@@ -24,10 +24,15 @@ export class AuthController {
   async checkSession(@Req() req: Request, @Res() res: Response) {
     const result: AuthCheckDto = {
       isAuthenticated: req.isAuthenticated(),
-      user: req.user
     }
 
     return res.send(result);
+  }
+
+  @Get('login-info')
+  @UseGuards(LoginGuard)
+  async loginInfo(@Req() req: Request, @Res() res: Response) {
+    return res.send(req.user)
   }
 
   @Get('test')
