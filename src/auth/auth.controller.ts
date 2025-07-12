@@ -12,6 +12,22 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleLogin(@Req() _req: Request, @Res() _res: Response) {}
 
+  @Get('logout')
+  @UseGuards(LoginGuard)
+  async logout(@Req() req: Request, @Res() res: Response) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('세션 삭제 에러발생:', err)
+        return res.status(500).send('세션 삭제중 에러발생')
+      }
+
+      res.clearCookie('connect.sid')
+
+      res.status(200).send()
+    });
+
+  }
+
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
