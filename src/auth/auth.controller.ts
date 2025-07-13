@@ -3,6 +3,7 @@ import { Request, Response } from "express"
 import { GoogleAuthGuard, LoginGuard } from "./auth.guard";
 import { requireEnv, requireEnvArray } from '../commons/utils/env.util'
 import { AuthCheckDto } from './dto/auth-check.dto'
+import { getUserEmail, sessionDestroy } from './auth.util'
 
 @Controller('auth')
 export class AuthController {
@@ -15,17 +16,16 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
-    this.logger.log(`로그아웃`)
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('세션 삭제 에러발생:', err)
-        return res.status(500).send('세션 삭제중 에러발생')
-      }
+    const email = getUserEmail(req)
 
-      res.clearCookie('connect.sid')
-
+    try {
+      await sessionDestroy(req)
+      this.logger.log(`로그아웃 : ${email}`)
       res.status(200).send()
-    });
+    } catch (error) {
+      this.logger.error('세션 삭제 에러발생:', error)
+      return res.status(500).send('세션 삭제중 에러발생')
+    }
   }
 
   @Get('google')
@@ -40,7 +40,7 @@ export class AuthController {
   async checkSession(@Req() req: Request, @Res() res: Response) {
     const isAuthenticated = req.isAuthenticated()
 
-    const email = req.user ? (req.user as any).email as string : null
+    const email = getUserEmail(req)
     const isValidUser = email ? this.allowedEmails.includes(email) : false
 
     const result: AuthCheckDto = {
