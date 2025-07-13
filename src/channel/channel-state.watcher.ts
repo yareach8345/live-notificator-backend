@@ -4,6 +4,7 @@ import { ChannelService } from './channel.service'
 import { Injectable, Logger } from '@nestjs/common'
 import { ChannelInfoMapper } from './channel-info.mapper'
 import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
+import { SmsService } from '../sms/sms.service'
 
 @Injectable()
 export class ChannelStateWatcher {
@@ -12,7 +13,8 @@ export class ChannelStateWatcher {
 
   constructor(
     private readonly messageDispatcherService: MessageDispatcherService,
-    channelService: ChannelService,
+    private readonly channelService: ChannelService,
+    private readonly smsService: SmsService
   ) {
     this.stateChannelChangeObserver = channelService.channelChangeSubscribe(ChannelInfoMapper.toChannelState)
     this.stateChannelChangeObserver.subscribe(er => {
@@ -24,7 +26,16 @@ export class ChannelStateWatcher {
     })
   }
 
-  notifyChannelStateChange = (channelState: ChannelStateDto) => {
+  notifyChannelStateChange = async (channelState: ChannelStateDto) => {
     this.messageDispatcherService.notifyChannelStateChange(channelState)
+
+    if(this.smsService.isEnable()) {
+      const channelDto = await this.channelService.getChannel(channelState.channelId)
+      const channelDisplayName = channelDto.detail.displayName
+      await this.smsService.sendChannelStateWithSms({
+        state: channelState.state,
+        displayName: channelDisplayName,
+      })
+    }
   }
 }

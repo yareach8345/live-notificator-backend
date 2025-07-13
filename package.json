@@ -30,6 +30,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.10.0",
     "chzzk": "^1.10.4",
+    "coolsms-node-sdk": "^2.1.0",
     "crypto": "^1.0.1",
     "express-session": "^1.18.1",
     "fs": "^0.0.1-security",

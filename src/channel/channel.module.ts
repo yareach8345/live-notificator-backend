@@ -8,12 +8,14 @@ import { ChzzkModule } from '../chzzk/chzzk.module'
 import { ChannelStore } from './channel.store'
 import { ChannelStateWatcher } from './channel-state.watcher'
 import { MessageDispatcherModule } from '../message-dispatcher/message-dispatcher.module'
+import SmsModule from '../sms/sms.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChannelEntity]),
     ChzzkModule,
-    MessageDispatcherModule
+    MessageDispatcherModule,
+    SmsModule
   ],
   providers: [ChannelService, ChannelRepository, ChannelStore, ChannelStateWatcher],
   controllers: [ChannelController],

@@ -23,5 +23,5 @@ export abstract class NotifyBaseService{
     this.notify('updated-at', datetime)
   }
 
-  abstract notify(topic: string, payload: string)
+  abstract notify(topic: string, payload: string): void
 }
