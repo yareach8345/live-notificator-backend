@@ -1,9 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Profile, Strategy } from "passport-google-oauth20";
 import { PassportStrategy } from "@nestjs/passport";
 import { UserInfoSchema, type UserInfo } from "src/auth/schemas/userinfo.zod";
 import { zodParsing } from '../commons/utils/zod.util'
-import { requireEnv, requireEnvArray } from '../commons/utils/env.util'
+import { requireEnv } from '../commons/utils/env.util'
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -18,10 +18,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(_accessToken: string, _refreshToken: string, profile: Profile): Promise<UserInfo> {
-    const { emails, id, displayName, provider } = profile
+    const { emails, id, displayName, provider, photos } = profile
     const email = emails?.[0]?.value
 
     return zodParsing({
+      picture: photos?.[0]?.value,
       email,
       id,
       displayName,

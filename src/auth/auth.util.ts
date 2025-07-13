@@ -1,6 +1,15 @@
 import { Request } from "express"
+import { UserInfoSchema } from './schemas/userinfo.zod'
 
-export const getUserEmail = (req: Request) => req.user ? (req.user as any).email as string : null
+export const getUserEmail = (req: Request) => {
+  const user = UserInfoSchema.safeParse(req.user)
+
+  if(user.success) {
+    return user.data.email
+  } else {
+    return null
+  }
+}
 
 export const sessionDestroy = (req: Request) => new Promise<void>((res, rej) => {
   req.session.destroy((err) => {

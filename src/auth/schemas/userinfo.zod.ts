@@ -5,6 +5,7 @@ export const UserInfoSchema = z.object({
   id: z.string(),
   displayName: z.string(),
   provider: z.string(),
+  picture: z.string().nullable()
 })
 
 export type UserInfo = z.infer<typeof UserInfoSchema>
