@@ -1,20 +1,21 @@
-import { Controller, Get, Logger, Req, Res, UseGuards } from "@nestjs/common";
+import { Controller, Get, Logger, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from "express"
 import { GoogleAuthGuard, LoginGuard } from "./auth.guard";
-import { requireEnv } from '../commons/utils/env.util'
+import { requireEnv, requireEnvArray } from '../commons/utils/env.util'
 import { AuthCheckDto } from './dto/auth-check.dto'
 
 @Controller('auth')
 export class AuthController {
+  private readonly allowedEmails = requireEnvArray("ALLOWED_EMAILS")
   private readonly logger = new Logger(AuthController.name);
 
   @Get('google-login')
   @UseGuards(GoogleAuthGuard)
   async googleLogin(@Req() _req: Request, @Res() _res: Response) {}
 
-  @Get('logout')
-  @UseGuards(LoginGuard)
+  @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
+    this.logger.log(`로그아웃`)
     req.session.destroy((err) => {
       if (err) {
         console.error('세션 삭제 에러발생:', err)
@@ -25,7 +26,6 @@ export class AuthController {
 
       res.status(200).send()
     });
-
   }
 
   @Get('google')
@@ -38,8 +38,15 @@ export class AuthController {
 
   @Get('check')
   async checkSession(@Req() req: Request, @Res() res: Response) {
+    const isAuthenticated = req.isAuthenticated()
+
+    const email = req.user ? (req.user as any).email as string : null
+    const isValidUser = email ? this.allowedEmails.includes(email) : false
+
     const result: AuthCheckDto = {
-      isAuthenticated: req.isAuthenticated(),
+      isAuthenticated,
+      email,
+      isValidUser
     }
 
     return res.send(result);
