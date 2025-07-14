@@ -11,7 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module
 import { join } from 'path'
 import { ChannelImageEntity } from './channel-image/channel-image.entity'
 import { ChannelImageModule } from './channel-image/channel-image.module'
-import { DeviceModule } from './device/device.module'
+import { MinimalChannelModule } from './minimal-channel/minimal-channel.module'
 
 @Module({
   imports: [
@@ -30,9 +30,9 @@ import { DeviceModule } from './device/device.module'
       rootPath: join(__dirname, '..', 'public')
     }),
     AuthModule,
+    MinimalChannelModule,
     ChannelModule,
     ChannelImageModule,
-    DeviceModule,
   ],
   controllers: [ AppController ],
   providers: [AppService],

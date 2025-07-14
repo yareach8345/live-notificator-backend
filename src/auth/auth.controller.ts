@@ -1,9 +1,10 @@
 import { Controller, Get, Logger, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from "express"
-import { GoogleAuthGuard, LoginGuard } from "./auth.guard";
+import { LoginGuard } from "./guards/login.guard";
 import { requireEnv, requireEnvArray } from '../commons/utils/env.util'
 import { AuthCheckDto } from './dto/auth-check.dto'
 import { getUserEmail, sessionDestroy } from './auth.util'
+import { GoogleAuthGuard } from './guards/google-auth.guard'
 
 @Controller('auth')
 export class AuthController {

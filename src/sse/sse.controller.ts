@@ -1,7 +1,7 @@
 import { Controller, Get, Logger, Query, Sse, UseGuards } from "@nestjs/common";
 import { SseService } from "./sse.service";
 import { Observable } from "rxjs";
-import { LoginGuard } from '../auth/auth.guard'
+import { LoginGuard } from '../auth/guards/login.guard'
 
 @Controller('sse')
 export class SseController {

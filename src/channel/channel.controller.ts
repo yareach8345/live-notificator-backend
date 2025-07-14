@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { LoginGuard } from '../auth/auth.guard'
+import { LoginGuard } from '../auth/guards/login.guard'
 import { ChannelService } from "./channel.service"
 import { getPageable } from '../commons/utils/controller.util'
 import { RegisterChannelDto } from "./dto/register-channel.dto";
