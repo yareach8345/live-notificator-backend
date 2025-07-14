@@ -1,11 +1,11 @@
 import { Controller, Get, Param, Req, Res, UseGuards } from "@nestjs/common";
-import { DeviceService } from './device.service'
+import { MinimalChannelService } from './minimal-channel.service'
 import { Request, Response } from 'express'
 import { getPageable } from '../commons/utils/controller.util'
 
-@Controller('device/channels')
-export class DeviceChannelController {
-  constructor(private deviceService: DeviceService) {}
+@Controller('channels/minimal')
+export class MinimalChannelController {
+  constructor(private deviceService: MinimalChannelService) {}
 
   @Get()
   async getChannels(@Req() req: Request, @Res() res: Response) {

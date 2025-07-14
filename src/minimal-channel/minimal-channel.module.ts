@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ChannelModule } from '../channel/channel.module'
-import { DeviceChannelController } from './device-channel.controller'
-import { DeviceService } from './device.service'
+import { MinimalChannelController } from './minimal-channel.controller'
+import { MinimalChannelService } from './minimal-channel.service'
 import { MessageDispatcherModule } from '../message-dispatcher/message-dispatcher.module'
 
 @Module({
@@ -9,7 +9,7 @@ import { MessageDispatcherModule } from '../message-dispatcher/message-dispatche
     ChannelModule,
     MessageDispatcherModule,
   ],
-  providers: [DeviceService],
-  controllers: [DeviceChannelController]
+  providers: [MinimalChannelService],
+  controllers: [MinimalChannelController]
 })
-export class DeviceModule {}
+export class MinimalChannelModule {}

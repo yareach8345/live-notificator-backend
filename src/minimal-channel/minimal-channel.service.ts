@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
-import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './device.util'
+import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './minimal-channel.util'
 import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
 import { getUpdatedFields } from '../commons/utils/diff.util'
 import { MessageDispatcherService } from 'src/message-dispatcher/message-dispatcher.service'
 
 @Injectable()
-export class DeviceService {
+export class MinimalChannelService {
   constructor(
     private readonly channelService: ChannelService,
     messageDispatcherService: MessageDispatcherService,
