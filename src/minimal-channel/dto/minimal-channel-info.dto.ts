@@ -14,7 +14,7 @@ export type MinimalLiveStateDto = LiveOpenDto | LiveCloseDto
 export interface MinimalChannelDetail {
   displayName: string
   followerCount: number
-  priority: number
+  priority?: number
   color?: string
 }
 

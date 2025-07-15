@@ -9,11 +9,11 @@ export class ChannelEntity {
   @Column({ name: 'display_name' })
   displayName: string
 
-  @Column({ nullable: true, default: 255 })
-  priority: number
+  @Column({ nullable: true })
+  priority?: number
 
-  @Column({ nullable: true, default: '#FFFFFF' })
-  color: string
+  @Column({ nullable: true })
+  color?: string
 
   @Column()
   platform: string

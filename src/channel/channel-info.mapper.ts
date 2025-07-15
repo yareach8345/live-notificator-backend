@@ -17,7 +17,7 @@ export class ChannelInfoMapper {
       channelId: dto.channelId,
       platform: 'chzzk',
       detail: {
-        priority: channelMeta?.priority ?? 255,
+        priority: channelMeta?.priority,
         color: channelMeta?.color,
         ...dto.detail
       },

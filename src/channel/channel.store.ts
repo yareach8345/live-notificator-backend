@@ -42,7 +42,7 @@ export class ChannelStore {
         return c1.liveState.isOpen ? -1 : 1
       }
 
-      const priorityDiff = c1.detail.priority - c2.detail.priority
+      const priorityDiff = (c1.detail.priority ?? 256) - (c2.detail.priority ?? 256)
       if(priorityDiff !== 0) {
         // 2. 방송 상태가 같은 경우 우선순위 높은 것이 우선
         return priorityDiff

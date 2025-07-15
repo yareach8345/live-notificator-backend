@@ -3,6 +3,6 @@ export interface ChannelDetailDto {
   channelDescription: string
   channelImageUrl?: string,
   followerCount: number,
-  priority: number,
+  priority?: number,
   color?: string
 }
