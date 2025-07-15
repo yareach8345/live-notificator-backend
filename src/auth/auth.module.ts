@@ -4,9 +4,14 @@ import { PassportModule } from "@nestjs/passport";
 import { AuthController } from "./auth.controller";
 import { SessionSerializer } from "./session.serializer";
 import { LoginGuard } from './guards/login.guard'
+import { DeviceModule } from '../device/device.module'
 
 @Module({
-  imports: [PassportModule, PassportModule.register({ session: true })],
+  imports: [
+    PassportModule,
+    PassportModule.register({ session: true }),
+    DeviceModule
+  ],
   providers: [
     GoogleStrategy,
     SessionSerializer,

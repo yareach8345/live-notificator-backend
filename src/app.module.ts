@@ -12,6 +12,7 @@ import { join } from 'path'
 import { ChannelImageEntity } from './channel-image/channel-image.entity'
 import { ChannelImageModule } from './channel-image/channel-image.module'
 import { MinimalChannelModule } from './minimal-channel/minimal-channel.module'
+import { DeviceEntity } from './device/device.entity'
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { MinimalChannelModule } from './minimal-channel/minimal-channel.module'
       username: requireEnv('DB_USERNAME'),
       password: requireEnv('DB_PASSWORD'),
       database: requireEnv('DB_DATABASE'),
-      entities: [ChannelEntity, ChannelImageEntity],
+      entities: [ChannelEntity, ChannelImageEntity, DeviceEntity],
       logging: true
     }),
     ServeStaticModule.forRoot({
