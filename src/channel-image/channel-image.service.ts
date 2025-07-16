@@ -148,36 +148,36 @@ export class ChannelImageService {
     })
   }
 
-  async downloadChannelImage(imageDownloadDto: ChannelImageDto) {
+  downloadChannelImage = async (imageDownloadDto: ChannelImageDto) => {
     this.logger.log(`이미지 다운로드 시작 : ${imageDownloadDto.channelId}`)
     await this.downloadAndSaveImage(imageDownloadDto)
     await this.channelImageRepository.saveChannelImage(imageDownloadDto)
     this.logger.log(`이미지 다운로드 완료 : ${this.generateImgName(imageDownloadDto.channelId)}`)
   }
 
-  async downloadChannelImages(imageDownloadDtos: ChannelImageDto[]) {
+  downloadChannelImages = async (imageDownloadDtos: ChannelImageDto[]) => {
     this.logger.log(`이미지 ${imageDownloadDtos.length}개 다운로드 시작`)
     await Promise.all(imageDownloadDtos.map(this.downloadAndSaveImage))
     await this.channelImageRepository.saveChannelImages(imageDownloadDtos)
     this.logger.log(`이미지 ${imageDownloadDtos.length}개 다운로드 완료`)
   }
 
-  async deleteImage(imageName: string) {
+  deleteImage = async (imageName: string) => {
     await fs.unlink(this.generateImgPath(imageName, 'original'))
     await Promise.all(this.generateImgPathsBySize(imageName).map(fs.unlink))
   }
 
-  async deleteChannelImage(channelId: string) {
+  deleteChannelImage = async (channelId: string) => {
     await this.deleteImage(channelId)
     this.logger.log(`이미지 삭제 : ${this.generateImgName(channelId)}`)
   }
 
-  async deleteChannelImages(channelIds: string[]) {
+  deleteChannelImages = async (channelIds: string[]) => {
     await Promise.all(channelIds.map(this.deleteImage))
     this.logger.log(`이미지 ${channelIds.length}개 삭제`)
   }
 
-  async refreshImages(newImageDtos: ChannelImageDto[]) {
+  refreshImages = async (newImageDtos: ChannelImageDto[]) => {
     const storedImages = this.imageStore.getChannelImages()
     const chackResult = this.evolaute(storedImages, newImageDtos)
 

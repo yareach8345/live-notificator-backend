@@ -2,12 +2,17 @@ import { UpdateNotifyDto } from 'src/message-dispatcher/dto/update-notify.dto'
 import { ChannelStateDto } from '../../channel/dto/channel-state.dto'
 import { ChannelInfoChangeDto } from '../../message-dispatcher/dto/channel-info-change.dto'
 import { dateToString } from '../utils/date.util'
+import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-channel-state.dto'
 
 export abstract class NotifyBaseService{
-  notifyChannelStateChange(channelState: ChannelStateDto) {
+  notifyChannelStateChange(channelState: NotifyChannelStateDto) {
+    const state = typeof channelState.state === 'boolean'
+      ? (channelState.state ? 'open' : 'closed')
+      : channelState.state
+
     this.notify(
       `channel/${channelState.channelId}/state`,
-      channelState.state ? 'open' : 'closed',
+      state
     )
   }
 
