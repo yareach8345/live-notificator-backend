@@ -1,6 +1,7 @@
 import { Controller, Get, Logger, Query, Sse, UseGuards } from "@nestjs/common";
 import { SseService } from "./sse.service";
 import { Observable } from "rxjs";
+import { HeaderOrLoginAuthGuard } from '../auth/guards/header-or-login-auth.guard'
 import { LoginGuard } from '../auth/guards/login.guard'
 
 @Controller('sse')
@@ -10,7 +11,7 @@ export class SseController {
   constructor(private readonly sseService: SseService) {}
 
   @Sse('/connect')
-  @UseGuards(LoginGuard)
+  @UseGuards(HeaderOrLoginAuthGuard)
   connectSse() {
     const {
       sseClient$,
