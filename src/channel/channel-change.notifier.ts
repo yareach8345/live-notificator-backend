@@ -31,7 +31,8 @@ export class ChannelChangeNotifier<R extends Record<'channelId', string>> implem
 
     const evaluationResult = this.evaluate(transformedOldChannel, transformedNewChannel)
 
-    if(evaluationResult.unchanged.length === newChannelInfo.length) {
+    const numberOfUnchangedItems = evaluationResult.unchanged.length
+    if( numberOfUnchangedItems === oldChannelInfo.length && numberOfUnchangedItems === newChannelInfo.length ) {
       return
     }
 

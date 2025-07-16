@@ -111,9 +111,9 @@ export class ChannelService {
 
   async unregisterChannel(channelId: string) {
     await this.channelRepository.deleteChannel(channelId)
-    this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
 
     await this.channelStore.deleteChannel(channelId)
+    this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
   }
 
   channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
