@@ -58,6 +58,13 @@ export class ChannelStore {
     })
   }
 
+  init = async (newData: ChannelInfoDto[]) => {
+    this.logger.log(`데이터 초기화. ${newData.length}개의 데이터를 추가합니다.`)
+    this.channels = newData
+    await this.sortChannels()
+    return this.channels.length
+  }
+
   update = (newData: ChannelInfoDto[]) =>
     this.withUpdateCallback(async (oldData) => {
       const evaluateResult = this.evaluate(oldData, newData)

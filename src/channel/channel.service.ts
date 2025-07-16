@@ -24,7 +24,7 @@ export class ChannelService {
     private readonly channelStore: ChannelStore,
     messageDispatcher: MessageDispatcherService,
   ) {
-    this.updateStore().then(async () => {
+    this.initStore().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
     })
     channelStore.addUpdateCallback(() => {
@@ -34,7 +34,7 @@ export class ChannelService {
     })
   }
 
-  private async updateStore() {
+  private getChannelDataFromChzzk = async () => {
     const channels = await this.channelRepository.getChannels()
 
     const priorityMap = new Map(channels.map(channel => [channel.channelId, channel]))
@@ -42,12 +42,23 @@ export class ChannelService {
       channels.map(channel => channel.channelId)
     )
 
-    const channelInfo = chzzkChannelInfos.map(ch =>
+    return chzzkChannelInfos.map(ch =>
       ChannelInfoMapper.fromChzzk(
         ch,
         priorityMap.get(ch.channelId)!
       )
     )
+  }
+
+  private async initStore() {
+    const channelInfo = await this.getChannelDataFromChzzk()
+
+    const numberOfAddedChannel = await this.channelStore.init(channelInfo)
+    this.logger.log(`${numberOfAddedChannel}개의 채널 정보를 저장했습니다.`)
+  }
+
+  private async updateStore() {
+    const channelInfo = await this.getChannelDataFromChzzk()
 
     const numberOfChangedChannel = await this.channelStore.update(channelInfo)
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
