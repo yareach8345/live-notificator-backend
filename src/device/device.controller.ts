@@ -4,6 +4,7 @@ import { Response } from 'express'
 import { LoginGuard } from '../auth/guards/login.guard'
 import { RegisterDeviceDto } from './dto/register-device.dto'
 import { DeviceDto } from './dto/device.dto'
+import { HeaderAuthGuard } from '../auth/guards/header-auth-guard.service'
 
 @Controller("/devices")
 export class DeviceController {
@@ -14,6 +15,12 @@ export class DeviceController {
   async getDevices(@Res() res: Response) {
     const deviceIds = await this.deviceService.getDevices()
     res.status(200).send(deviceIds)
+  }
+
+  @Get('auth-test')
+  @UseGuards(HeaderAuthGuard)
+  async deviceGuardTest(@Res() res: Response) {
+    res.status(200).send('success')
   }
 
   @Get(':deviceId')
