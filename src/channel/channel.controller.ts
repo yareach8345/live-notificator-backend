@@ -54,7 +54,7 @@ export class ChannelController {
   }
 
   @Post()
-  // @UseGuards(LoginGuard)
+  @UseGuards(LoginGuard)
   async registerChannel(@Res() res: Response, @Body() registerChannelDto: RegisterChannelDto) {
     const created = await this.channelService.registerChannel(registerChannelDto)
 
@@ -62,7 +62,7 @@ export class ChannelController {
   }
 
   @Delete(":channelId")
-  // @UseGuards(LoginGuard)
+  @UseGuards(LoginGuard)
   async unregisterChannel(@Res() res: Response, @Param("channelId") channelId: string) {
     await this.channelService.unregisterChannel(channelId)
 
