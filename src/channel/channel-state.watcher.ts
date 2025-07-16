@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { ChannelInfoMapper } from './channel-info.mapper'
 import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
 import { SmsService } from '../sms/sms.service'
+import { NotifyChannelStateDto } from '../message-dispatcher/dto/notify-channel-state.dto'
 
 @Injectable()
 export class ChannelStateWatcher {
@@ -22,20 +23,31 @@ export class ChannelStateWatcher {
       console.log('added', er.added)
       console.log('deleted', er.deleted)
       console.log('changed', er.changed)
-      er.changed.forEach(this.notifyChannelStateChange)
+
+      er.changed
+        .map(channelState => ({
+          channelId: channelState.channelId,
+          state: channelState.state,
+        }))
+        .forEach(this.notifyChannelStateChange)
+
+      er.added
+        .map(channelState => ({
+          channelId: channelState.channelId,
+          state: 'added'
+        }))
+        .forEach(this.notifyChannelStateChange)
+
+      er.deleted
+        .map(channelState => ({
+          channelId: channelState.channelId,
+          state: 'deleted'
+        }))
+        .forEach(this.notifyChannelStateChange)
     })
   }
 
-  notifyChannelStateChange = async (channelState: ChannelStateDto) => {
+  notifyChannelStateChange = async (channelState: NotifyChannelStateDto) => {
     this.messageDispatcherService.notifyChannelStateChange(channelState)
-
-    if(this.smsService.isEnable()) {
-      const channelDto = await this.channelService.getChannel(channelState.channelId)
-      const channelDisplayName = channelDto.detail.displayName
-      await this.smsService.sendChannelStateWithSms({
-        state: channelState.state,
-        displayName: channelDisplayName,
-      })
-    }
   }
 }

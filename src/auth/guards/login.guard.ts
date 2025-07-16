@@ -13,8 +13,6 @@ export class LoginGuard implements CanActivate {
     const result = request.isAuthenticated()
 
     if(!result) {
-      const response = context.switchToHttp().getResponse();
-      response.redirect("/auth/google-login")
       return false
     }
 

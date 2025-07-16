@@ -6,6 +6,7 @@ import { SessionSerializer } from "./session.serializer";
 import { LoginGuard } from './guards/login.guard'
 import { DeviceModule } from '../device/device.module'
 import { HeaderAuthGuard } from './guards/header-auth-guard.service'
+import { HeaderOrLoginAuthGuard } from './guards/header-or-login-auth.guard'
 
 @Module({
   imports: [
@@ -17,9 +18,10 @@ import { HeaderAuthGuard } from './guards/header-auth-guard.service'
     GoogleStrategy,
     SessionSerializer,
     LoginGuard,
-    HeaderAuthGuard
+    HeaderAuthGuard,
+    HeaderOrLoginAuthGuard
   ],
   controllers: [AuthController],
-  exports: [LoginGuard],
+  exports: [LoginGuard, HeaderAuthGuard, HeaderOrLoginAuthGuard],
 })
 export class AuthModule {}
