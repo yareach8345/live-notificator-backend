@@ -30,4 +30,12 @@ export class ChannelImageRepository {
   async saveChannelImage(channelImage: ChannelImageDto) {
     await this.repository.save(channelImage)
   }
+
+  async deleteChannelImage(channelId: string) {
+    await this.repository.delete(channelId)
+  }
+
+  async deleteChannelImages(channelIds: string[]) {
+    await this.repository.delete(channelIds)
+  }
 }

@@ -6,10 +6,10 @@ export class ChannelImageStore {
   private storedImage: ChannelImageDto[] = []
   
   update(images: ChannelImageDto[]) {
-    this.storedImage = images
+    this.storedImage = [...images]
   }
 
   getChannelImages() {
-    return this.storedImage
+    return [...this.storedImage]
   }
 }

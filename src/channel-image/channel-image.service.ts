@@ -64,7 +64,6 @@ export class ChannelImageService {
         this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
         this.channelChangeObserver.subscribe((er) => this.refreshImages([
           ...er.added,
-          ...er.deleted,
           ...er.changed,
           ...er.unchanged
         ]))
@@ -163,17 +162,23 @@ export class ChannelImageService {
   }
 
   deleteImage = async (imageName: string) => {
-    await fs.unlink(this.generateImgPath(imageName, 'original'))
-    await Promise.all(this.generateImgPathsBySize(imageName).map(fs.unlink))
+    const imagePaths = [
+      this.generateImgPath(imageName, 'original'),
+      ...this.generateImgPathsBySize(imageName)
+    ]
+
+    await Promise.all(imagePaths.map(fs.unlink))
   }
 
   deleteChannelImage = async (channelId: string) => {
     await this.deleteImage(channelId)
+    await this.channelImageRepository.deleteChannelImage(channelId)
     this.logger.log(`이미지 삭제 : ${this.generateImgName(channelId)}`)
   }
 
   deleteChannelImages = async (channelIds: string[]) => {
     await Promise.all(channelIds.map(this.deleteImage))
+    await this.channelImageRepository.deleteChannelImages(channelIds)
     this.logger.log(`이미지 ${channelIds.length}개 삭제`)
   }
 
@@ -182,10 +187,13 @@ export class ChannelImageService {
     const chackResult = this.evolaute(storedImages, newImageDtos)
 
     if(chackResult.deleted.length > 0) {
+      console.log("deletec -> ", chackResult.deleted.map(c => c.channelId))
       await this.deleteChannelImages(chackResult.deleted.map(i => i.channelId))
     }
 
     if(chackResult.changed.length + chackResult.added.length > 0) {
+      console.log("changed -> ", chackResult.changed.map(i => i.channelId))
+      console.log("added -> ", chackResult.added.map(i => i.channelId))
       await this.downloadChannelImages([...chackResult.changed, ...chackResult.added])
     }
 
