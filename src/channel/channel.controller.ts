@@ -1,9 +1,10 @@
 import { Response, Request } from "express";
-import { Body, Controller, Delete, Get, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { LoginGuard } from '../auth/guards/login.guard'
 import { ChannelService } from "./channel.service"
 import { getPageable } from '../commons/utils/controller.util'
 import { RegisterChannelDto } from "./dto/register-channel.dto";
+import { EditChannelDto } from './dto/edit-channel.dto'
 
 @Controller('channels')
 export class ChannelController {
@@ -59,6 +60,14 @@ export class ChannelController {
     const created = await this.channelService.registerChannel(registerChannelDto)
 
     return res.status(201).location(`channels/${created.channelId}`).json(created)
+  }
+
+  @Patch(":channelId")
+  @UseGuards(LoginGuard)
+  async updateChannel(@Res() res: Response, @Param("channelId") channelId: string, @Body() editDto: EditChannelDto) {
+    const result = await this.channelService.updateChannel(channelId, editDto)
+
+    return res.status(200).json(result)
   }
 
   @Delete(":channelId")

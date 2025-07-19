@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Pageable } from '../commons/dto/page.dto'
 import { calcPagination } from '../commons/utils/database.util'
 import { ChannelDto } from './dto/channel.dto'
+import { EditChannelDto } from './dto/edit-channel.dto'
 
 @Injectable()
 export class ChannelRepository {
@@ -42,5 +43,13 @@ export class ChannelRepository {
 
   async deleteChannel(channelId: string) {
     await this.repository.delete(channelId)
+  }
+
+  async updateChannel(channelId: string, editDto: EditChannelDto) {
+    await this.repository.update(channelId, editDto)
+
+    const afterUpdate = await this.repository.findOneBy({ channelId })
+
+    return afterUpdate?.toDto()
   }
 }

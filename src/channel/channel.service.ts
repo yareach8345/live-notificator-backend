@@ -13,6 +13,8 @@ import {
   ChannelInfoTransformer,
   createChannelChangeNotifier,
 } from './channel-change.notifier'
+import { EditChannelDto } from './dto/edit-channel.dto';
+import { RuntimeException } from '@nestjs/core/errors/exceptions'
 
 @Injectable()
 export class ChannelService {
@@ -114,6 +116,38 @@ export class ChannelService {
 
     await this.channelStore.deleteChannel(channelId)
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
+  }
+
+  async updateChannel(channelId: string, editChannelDto: EditChannelDto) {
+    const afterUpdate = await this.channelRepository.updateChannel(
+      channelId,
+      {
+        color: editChannelDto.color?.toLowerCase(),
+        priority: editChannelDto.priority
+      }
+    )
+
+    if(afterUpdate === null) {
+      throw new RuntimeException("알 수 없는 에러 발생. 채널을 업데이트한 이후의 결과가 null입니다.")
+    }
+
+    const currentChannel = this.channelStore.getChannel(channelId)
+    if(currentChannel === undefined) {
+      throw new RuntimeException("알 수 없는 에러 발생. 업데이트한 채널을 스토어에서 불러올 수 없습니다.")
+    }
+
+    const channelInfoAfterUpdate = {
+      ...currentChannel,
+      detail: {
+        ...currentChannel.detail,
+        color: editChannelDto.color,
+        priority: editChannelDto.priority
+      }
+    }
+
+    await this.channelStore.updateOne(channelId, channelInfoAfterUpdate)
+
+    return afterUpdate
   }
 
   channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
