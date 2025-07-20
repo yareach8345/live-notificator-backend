@@ -1,5 +1,4 @@
 import { UpdateNotifyDto } from 'src/message-dispatcher/dto/update-notify.dto'
-import { ChannelStateDto } from '../../channel/dto/channel-state.dto'
 import { ChannelInfoChangeDto } from '../../message-dispatcher/dto/channel-info-change.dto'
 import { dateToString } from '../utils/date.util'
 import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-channel-state.dto'

@@ -1,10 +1,10 @@
 import { ChannelChangeObserver } from './channel-change.notifier'
-import { ChannelStateDto } from './dto/channel-state.dto'
 import { ChannelService } from './channel.service'
 import { Injectable, Logger } from '@nestjs/common'
 import { ChannelInfoMapper } from './channel-info.mapper'
 import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
 import { NotifyChannelStateDto } from '../message-dispatcher/dto/notify-channel-state.dto'
+import { ChannelStateDto } from './dto/channel-state.dto'
 
 @Injectable()
 export class ChannelStateWatcher {
