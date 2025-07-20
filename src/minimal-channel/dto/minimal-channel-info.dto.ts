@@ -1,3 +1,5 @@
+import { ChannelId } from '../../commons/types/channel-id.type'
+
 export interface LiveOpenDto {
   isOpen: true
   liveTitle: string
@@ -19,7 +21,7 @@ export interface MinimalChannelDetail {
 }
 
 export interface MinimalChannelInfoDto {
-  channelId: string
+  channelId: ChannelId
   detail: MinimalChannelDetail
   liveState: MinimalLiveStateDto
 }

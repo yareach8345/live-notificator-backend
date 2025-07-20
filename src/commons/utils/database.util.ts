@@ -1,4 +1,5 @@
 import { Pageable } from "../dto/page.dto";
+import { ChannelId } from '../types/channel-id.type'
 
 export const calcPagination = (pageable: Pageable | undefined) => {
   if(pageable !== undefined) {
@@ -8,3 +9,8 @@ export const calcPagination = (pageable: Pageable | undefined) => {
     return undefined
   }
 }
+
+export const channelIdToKey = (channelId: ChannelId) => ({
+  platform: channelId.platform,
+  channelId: channelId.id,
+})

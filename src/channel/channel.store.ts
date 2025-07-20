@@ -3,6 +3,8 @@ import { filter, from, lastValueFrom, skip, take, toArray } from 'rxjs'
 import { Injectable, Logger } from '@nestjs/common'
 import { Pageable } from '../commons/dto/page.dto'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
+import { ChannelId } from '../commons/types/channel-id.type'
+import { isEqual } from 'lodash'
 
 export type ChannelInfoUpdateCallback = (newChannelInfos: ChannelInfoDto[], oldChannelInfos: ChannelInfoDto[]) => any
 
@@ -75,24 +77,24 @@ export class ChannelStore {
       return numberOfUpdatedChannels
     })
 
-  updateOne = (channelId: string, newData: ChannelInfoDto) =>
+  updateOne = (channelId: ChannelId, newData: ChannelInfoDto) =>
     this.withUpdateCallback(async () => {
       this.channels = this.channels.map(channel =>
-        channel.channelId === channelId ? newData : channel
+        isEqual(channel.channelId, channelId) ? newData : channel
       )
       await this.sortChannels()
     })
 
   addChannel = (channel: ChannelInfoDto) =>
     this.withUpdateCallback(async () => {
-      const isAlreadyExists = this.channels.map(c => c.channelId).find(id => id === channel.channelId) !== undefined
+      const isAlreadyExists = this.channels.map(c => c.channelId).find(id => isEqual(id, channel.channelId)) !== undefined
       if(!isAlreadyExists) {
         this.channels.push(channel)
         await this.sortChannels()
       }
     })
 
-  deleteChannel = (channelId: string) =>
+  deleteChannel = (channelId: ChannelId) =>
     this.withUpdateCallback(async () => {
       this.channels = this.channels.filter(channel => channel.channelId !== channelId)
     })
@@ -110,13 +112,13 @@ export class ChannelStore {
     }
   }
 
-  getChannel(id: string) {
-    return this.channels.find(channel => channel.channelId === id)
+  getChannelById(id: ChannelId) {
+    return this.channels.find(channel => isEqual(channel.channelId, id))
   }
 
   getChannelByState(isOpen: boolean, pageable?: Pageable) {
     let filtered$ = from(this.channels).pipe(
-      filter(channel => channel.liveState.isOpen === isOpen),
+      filter(channel => isEqual(channel.liveState.isOpen, isOpen)),
     )
 
     if(pageable) {

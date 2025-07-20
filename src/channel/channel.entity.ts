@@ -3,6 +3,9 @@ import { ChannelDto } from './dto/channel.dto'
 
 @Entity('channels')
 export class ChannelEntity {
+  @PrimaryColumn()
+  platform: string
+
   @PrimaryColumn({ name: 'channel_id' })
   channelId: string
 
@@ -15,13 +18,12 @@ export class ChannelEntity {
   @Column({ nullable: true })
   color?: string
 
-  @Column()
-  platform: string
-
   toDto(): ChannelDto {
     return {
-      channelId: this.channelId,
-      platform: this.platform,
+      channelId: {
+        platform: this.platform,
+        id: this.channelId
+      },
       displayName: this.displayName,
       priority: this.priority,
       color: this.color,

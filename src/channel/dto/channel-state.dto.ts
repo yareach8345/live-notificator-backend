@@ -1,4 +1,6 @@
+import { ChannelId } from '../../commons/types/channel-id.type'
+
 export interface ChannelStateDto {
-  channelId: string,
+  channelId: ChannelId,
   state: boolean
 }

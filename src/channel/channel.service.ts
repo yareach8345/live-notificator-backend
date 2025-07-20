@@ -15,6 +15,7 @@ import {
 } from './channel-change.notifier'
 import { EditChannelDto } from './dto/edit-channel.dto';
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
+import { ChannelId } from '../commons/types/channel-id.type'
 
 @Injectable()
 export class ChannelService {
@@ -39,9 +40,9 @@ export class ChannelService {
   private getChannelDataFromChzzk = async () => {
     const channels = await this.channelRepository.getChannels()
 
-    const priorityMap = new Map(channels.map(channel => [channel.channelId, channel]))
+    const priorityMap = new Map(channels.map(channel => [channel.channelId.id, channel]))
     const chzzkChannelInfos = await this.chzzkService.getChannelInfos(
-      channels.map(channel => channel.channelId)
+      channels.map(channel => channel.channelId.id)
     )
 
     return chzzkChannelInfos.map(ch =>
@@ -82,8 +83,8 @@ export class ChannelService {
     return this.channelStore.getCloseChannel(pageable)
   }
 
-  async getChannel(channelId: string) {
-    const channel = this.channelStore.getChannel(channelId)
+  async getChannel(channelId: ChannelId) {
+    const channel = this.channelStore.getChannelById(channelId)
 
     if(channel === undefined) {
       throw new NotFoundException(`채널을 찾을 수 없습니다: ${channelId}`)
@@ -92,8 +93,12 @@ export class ChannelService {
     return channel
   }
 
+  async getChannelsByPlatform(platform: string) {
+    return this.channelRepository.getChannelsByPlatform(platform)
+  }
+
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
-    const chzzkChannelInfo = await this.chzzkService.getChannelInfo(channelRegistrationDto.channelId)
+    const chzzkChannelInfo = await this.chzzkService.getChannelInfo(channelRegistrationDto.channelId.id)
 
     const channelInfo = ChannelInfoMapper.fromChzzk(chzzkChannelInfo, channelRegistrationDto)
 
@@ -104,21 +109,21 @@ export class ChannelService {
     }
 
     await this.channelRepository.saveChannel(channelDto)
-    this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId})`)
+    this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
 
     await this.channelStore.addChannel(channelInfo)
 
     return channelDto
   }
 
-  async unregisterChannel(channelId: string) {
+  async unregisterChannel(channelId: ChannelId) {
     await this.channelRepository.deleteChannel(channelId)
 
     await this.channelStore.deleteChannel(channelId)
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
   }
 
-  async updateChannel(channelId: string, editChannelDto: EditChannelDto) {
+  async updateChannel(channelId: ChannelId, editChannelDto: EditChannelDto) {
     const afterUpdate = await this.channelRepository.updateChannel(
       channelId,
       {
@@ -131,7 +136,7 @@ export class ChannelService {
       throw new RuntimeException("알 수 없는 에러 발생. 채널을 업데이트한 이후의 결과가 null입니다.")
     }
 
-    const currentChannel = this.channelStore.getChannel(channelId)
+    const currentChannel = this.channelStore.getChannelById(channelId)
     if(currentChannel === undefined) {
       throw new RuntimeException("알 수 없는 에러 발생. 업데이트한 채널을 스토어에서 불러올 수 없습니다.")
     }
@@ -150,7 +155,7 @@ export class ChannelService {
     return afterUpdate
   }
 
-  channelChangeSubscribe<R extends Record<'channelId', string>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
+  channelChangeSubscribe<R extends Record<'channelId', ChannelId>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
     const [emitter, observer] = createChannelChangeNotifier<R>(transformFromChannelInfo)
     this.channelStore.addUpdateCallback(emitter.emit)
     return observer

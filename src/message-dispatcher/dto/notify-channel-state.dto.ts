@@ -1,4 +1,6 @@
+import { ChannelId } from '../../commons/types/channel-id.type'
+
 export interface NotifyChannelStateDto {
-  channelId: string,
+  channelId: ChannelId,
   state: boolean | string
 }

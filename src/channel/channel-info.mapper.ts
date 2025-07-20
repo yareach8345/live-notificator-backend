@@ -14,8 +14,10 @@ export class ChannelInfoMapper {
     channelMeta?: ChannelMeta
   ): ChannelInfoDto {
     return {
-      channelId: dto.channelId,
-      platform: 'chzzk',
+      channelId: {
+        id: dto.channelId,
+        platform: 'chzzk',
+      },
       detail: {
         priority: channelMeta?.priority,
         color: channelMeta?.color,

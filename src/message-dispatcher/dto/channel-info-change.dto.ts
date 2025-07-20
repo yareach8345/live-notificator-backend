@@ -1,5 +1,4 @@
-import { LiveStateDto } from '../../channel/dto/live-state.dto'
-import { ChannelDetailDto } from '../../channel/dto/channel-info.dto'
+import { ChannelDetailDto, LiveStateDto } from '../../channel/dto/channel-info.dto'
 
 export type ChannelDetailChangeDto = Omit<ChannelDetailDto, 'channelDescription'>
 

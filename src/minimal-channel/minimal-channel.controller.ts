@@ -19,10 +19,14 @@ export class MinimalChannelController {
     return res.status(200).json(channels);
   }
 
-  @Get(":channelId")
+  @Get(":platform/:id")
   @UseGuards(HeaderOrLoginAuthGuard)
-  async getChannel(@Res() res: Response, @Param("channelId") channelId: string) {
-    const channel = await this.deviceService.getChannel(channelId)
+  async getChannel(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("channelId") id: string
+  ) {
+    const channel = await this.deviceService.getChannel({ platform, id })
 
     return res.status(200).json(channel)
   }

@@ -3,6 +3,9 @@ import { ChannelImageDto } from './dto/channel-image.dto'
 
 @Entity('channel_images')
 export class ChannelImageEntity {
+  @PrimaryColumn({ name: 'platform' })
+  platform: string
+
   @PrimaryColumn({ name: 'channel_id' })
   channelId: string
 
@@ -11,8 +14,11 @@ export class ChannelImageEntity {
 
   toDto(): ChannelImageDto {
     return {
-      channelId: this.channelId,
-      imageUrl: this.imageUrl,
+      channelId: {
+        platform: this.platform,
+        id: this.channelId,
+      },
+      imageUrl: this.imageUrl
     }
   }
 }

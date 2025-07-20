@@ -2,6 +2,7 @@ import { UpdateNotifyDto } from 'src/message-dispatcher/dto/update-notify.dto'
 import { ChannelInfoChangeDto } from '../../message-dispatcher/dto/channel-info-change.dto'
 import { dateToString } from '../utils/date.util'
 import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-channel-state.dto'
+import { ChannelId } from '../types/channel-id.type'
 
 export abstract class NotifyBaseService{
   notifyChannelStateChange(channelState: NotifyChannelStateDto) {
@@ -10,14 +11,14 @@ export abstract class NotifyBaseService{
       : channelState.state
 
     this.notify(
-      `channel/${channelState.channelId}/state`,
+      `channel/${channelState.channelId.platform}/${channelState.channelId.id}/state`,
       state
     )
   }
 
-  notifyChannelInfoChange(channelId: string, channelInfoChangeDto: Partial<ChannelInfoChangeDto>) {
+  notifyChannelInfoChange(channelId: ChannelId, channelInfoChangeDto: Partial<ChannelInfoChangeDto>) {
     this.notify(
-      `channel/${channelId}/info-changed`,
+      `channel/${channelId.platform}/${channelId.id}/info-changed`,
       JSON.stringify(channelInfoChangeDto),
     )
   }

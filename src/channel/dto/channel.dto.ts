@@ -1,6 +1,7 @@
+import { ChannelId } from '../../commons/types/channel-id.type'
+
 export interface ChannelDto {
-  channelId: string
-  platform: string
+  channelId: ChannelId,
   displayName: string
   priority?: number
   color?: string

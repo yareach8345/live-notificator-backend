@@ -17,7 +17,7 @@ export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : Chann
       }
 
   return {
-    channelId,
+    channelId: channelId,
     detail: {
       displayName: detail.displayName,
       followerCount: detail.followerCount,

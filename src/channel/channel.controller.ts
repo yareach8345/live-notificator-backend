@@ -30,10 +30,14 @@ export class ChannelController {
     return res.status(200).json(channels);
   }
 
-  @Get(":channelId")
+  @Get(":platform/:id")
   @UseGuards(LoginGuard)
-  async getChannel(@Res() res: Response, @Param("channelId") channelId: string) {
-    const channel = await this.channelService.getChannel(channelId)
+  async getChannel(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("id") id: string
+  ) {
+    const channel = await this.channelService.getChannel({ platform, id })
 
     return res.status(200).json(channel)
   }
@@ -59,22 +63,46 @@ export class ChannelController {
   async registerChannel(@Res() res: Response, @Body() registerChannelDto: RegisterChannelDto) {
     const created = await this.channelService.registerChannel(registerChannelDto)
 
-    return res.status(201).location(`channels/${created.channelId}`).json(created)
+    return res.status(201).location(`channels/${created.channelId.platform}${created.channelId.id}`).json(created)
   }
 
-  @Patch(":channelId")
+  @Patch(":platform/:id")
   @UseGuards(LoginGuard)
-  async updateChannel(@Res() res: Response, @Param("channelId") channelId: string, @Body() editDto: EditChannelDto) {
+  async updateChannel(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("id") id: string,
+    @Body() editDto: EditChannelDto
+  ) {
+    const channelId = {
+      platform: platform,
+      id: id,
+    }
     const result = await this.channelService.updateChannel(channelId, editDto)
 
     return res.status(200).json(result)
   }
 
-  @Delete(":channelId")
+  @Delete(":platform/:id")
   @UseGuards(LoginGuard)
-  async unregisterChannel(@Res() res: Response, @Param("channelId") channelId: string) {
-    await this.channelService.unregisterChannel(channelId)
+  async unregisterChannel(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("id") id: string
+  ) {
+    await this.channelService.unregisterChannel({ platform, id })
 
     return res.sendStatus(200)
+  }
+
+  @Get(":platform")
+  @UseGuards(LoginGuard)
+  async getChannelByPlatform(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+  ) {
+    const channels = await this.channelService.getChannelsByPlatform(platform)
+
+    return res.status(200).send(channels)
   }
 }
