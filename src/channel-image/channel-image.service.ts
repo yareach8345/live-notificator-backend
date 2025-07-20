@@ -46,7 +46,7 @@ export class ChannelImageService {
       .toBuffer()
   ]))
 
-  readonly evolaute = generateDiffEvaluator<ChannelImageDto, 'channelId'>('channelId')
+  readonly evolute = generateDiffEvaluator<ChannelImageDto>()
 
   readonly logger = new Logger(ChannelImageService.name)
 
@@ -99,7 +99,6 @@ export class ChannelImageService {
   }
 
   private async initializeImageStore() {
-    //
   }
 
   private downloadAndSaveImage = async ({channelId, imageUrl} : ChannelImageDto) => {
@@ -166,10 +165,10 @@ export class ChannelImageService {
 
   refreshImages = async (newImageDtos: ChannelImageDto[]) => {
     const storedImages = this.imageStore.getChannelImages()
-    const chackResult = this.evolaute(storedImages, newImageDtos)
+    const chackResult = this.evolute(storedImages, newImageDtos)
 
     if(chackResult.deleted.length > 0) {
-      console.log("deletec -> ", chackResult.deleted.map(c => c.channelId))
+      console.log("deleted -> ", chackResult.deleted.map(c => c.channelId))
       await this.deleteChannelImages(chackResult.deleted.map(i => i.channelId))
     }
 

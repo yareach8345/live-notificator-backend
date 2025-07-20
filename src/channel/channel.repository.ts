@@ -47,14 +47,14 @@ export class ChannelRepository {
   }
 
   async deleteChannel(channelId: ChannelId) {
-    await this.repository.delete(channelId)
+    await this.repository.delete(channelIdToKey(channelId))
   }
 
   async updateChannel(channelId: ChannelId, editDto: EditChannelDto) {
     const key = channelIdToKey(channelId)
     await this.repository.update(key, editDto)
 
-    const afterUpdate = await this.repository.findOneBy(channelId)
+    const afterUpdate = await this.repository.findOneBy(key)
 
     return afterUpdate?.toDto()
   }

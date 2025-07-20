@@ -18,7 +18,7 @@ export interface ChannelChangeEmitter {
 export class ChannelChangeNotifier<R extends Record<'channelId', ChannelId>> implements ChannelChangeObserver<R>, ChannelChangeEmitter {
   private readonly callbacks: OnUpdateCallback<R>[] = []
   
-  private readonly evaluate = generateDiffEvaluator<R, 'channelId'>('channelId')
+  private readonly evaluate = generateDiffEvaluator<R>()
 
   constructor(private readonly transformerFromChannelInfoToR: ChannelInfoTransformer<R>) {}
 

@@ -16,7 +16,7 @@ export class ChannelStore {
 
   private readonly updateCallbacks: ChannelInfoUpdateCallback[] = []
 
-  private readonly evaluate = generateDiffEvaluator<ChannelInfoDto, 'channelId'>('channelId')
+  private readonly evaluate = generateDiffEvaluator<ChannelInfoDto>()
 
   addUpdateCallback(callback: ChannelInfoUpdateCallback) {
     this.updateCallbacks.push(callback)
@@ -96,7 +96,7 @@ export class ChannelStore {
 
   deleteChannel = (channelId: ChannelId) =>
     this.withUpdateCallback(async () => {
-      this.channels = this.channels.filter(channel => channel.channelId !== channelId)
+      this.channels = this.channels.filter(channel => !isEqual(channel.channelId, channelId))
     })
 
   async getChannels(pageable?: Pageable) {

@@ -18,9 +18,6 @@ export class ChannelStateWatcher {
     this.stateChannelChangeObserver = channelService.channelChangeSubscribe(ChannelInfoMapper.toChannelState)
     this.stateChannelChangeObserver.subscribe(er => {
       this.logger.log('channel state change detected')
-      console.log('added', er.added)
-      console.log('deleted', er.deleted)
-      console.log('changed', er.changed)
 
       er.changed
         .map(channelState => ({

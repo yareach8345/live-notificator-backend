@@ -6,6 +6,7 @@ import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-cha
 import { getUpdatedFields } from '../commons/utils/diff.util'
 import { MessageDispatcherService } from 'src/message-dispatcher/message-dispatcher.service'
 import { ChannelId } from '../commons/types/channel-id.type'
+import { calcHashMapKey } from '../commons/utils/channel-id.util'
 
 @Injectable()
 export class MinimalChannelService {
@@ -16,12 +17,12 @@ export class MinimalChannelService {
     channelService
       .channelChangeSubscribe(projectChannelInfoForCompare)
       .subscribe(({changed, previous}) => {
-        const previousMap = new Map<ChannelId, ChannelInfoChangeDto>( previous.map(before => [ before.channelId, compareDataToChangeDto(before) ]) )
+        const previousMap = new Map<string, ChannelInfoChangeDto>( previous.map(before => [ calcHashMapKey(before), compareDataToChangeDto(before) ]) )
         changed
           .map(after => ({
             channelId: after.channelId,
             after: compareDataToChangeDto(after),
-            before: previousMap.get(after.channelId)!,
+            before: previousMap.get(calcHashMapKey(after))!,
           }))
           .map(({ channelId, before, after}) => ({
             channelId,

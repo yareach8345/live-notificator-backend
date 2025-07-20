@@ -1,22 +1,22 @@
 import { EvaluationResultDto } from '../dto/evaluation-result.dto'
 import { isEqual } from 'lodash'
+import { ChannelId } from '../types/channel-id.type'
+import { calcHashMapKey } from './channel-id.util'
 
 export type IsChangedFunction<T> = (original: T, comparison: T) => boolean
 
-export const generateDiffEvaluator = <T extends Record<K, any>, K extends keyof T>(indexField: K, isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[] | Map<T[K], T>, comparisonItems: T[]): EvaluationResultDto<T> => {
+export const generateDiffEvaluator = <T extends Record<'channelId', ChannelId>>(isChanged: IsChangedFunction<T> = (item1, item2) => !isEqual(item1, item2)) => (originalItems: T[], comparisonItems: T[]): EvaluationResultDto<T> => {
   const added: T[] = []
   const previous: T[] = []
   const changed: T[] = []
   const unchanged: T[] = []
   const deleted: T[] = []
 
-  const originalDataMap = Array.isArray(originalItems)
-    ? new Map( originalItems.map(data => [data[indexField], data]) )
-    : originalItems
+  const originalDataMap = new Map( originalItems.map(data => [calcHashMapKey(data), data]) )
 
   comparisonItems.forEach(comparisonItem=> {
-    const originalItem = originalDataMap.get(comparisonItem[indexField])
-    originalDataMap.delete(comparisonItem[indexField])
+    const originalItem = originalDataMap.get(calcHashMapKey(comparisonItem))
+    originalDataMap.delete(calcHashMapKey(comparisonItem))
 
     if(originalItem === undefined) {
       added.push(comparisonItem)
