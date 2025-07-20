@@ -1,7 +1,7 @@
 import { EvaluationResultDto } from '../dto/evaluation-result.dto'
 import { isEqual } from 'lodash'
 import { ChannelId } from '../types/channel-id.type'
-import { calcHashMapKey } from './channel-id.util'
+import { channelIdToString } from './channel-id.util'
 
 export type IsChangedFunction<T> = (original: T, comparison: T) => boolean
 
@@ -12,11 +12,11 @@ export const generateDiffEvaluator = <T extends Record<'channelId', ChannelId>>(
   const unchanged: T[] = []
   const deleted: T[] = []
 
-  const originalDataMap = new Map( originalItems.map(data => [calcHashMapKey(data), data]) )
+  const originalDataMap = new Map( originalItems.map(data => [channelIdToString(data.channelId), data]) )
 
   comparisonItems.forEach(comparisonItem=> {
-    const originalItem = originalDataMap.get(calcHashMapKey(comparisonItem))
-    originalDataMap.delete(calcHashMapKey(comparisonItem))
+    const originalItem = originalDataMap.get(channelIdToString(comparisonItem.channelId))
+    originalDataMap.delete(channelIdToString(comparisonItem.channelId))
 
     if(originalItem === undefined) {
       added.push(comparisonItem)

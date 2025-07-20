@@ -1,8 +1,7 @@
 import { Channel, LiveStatus } from 'chzzk'
-import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
-import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
+import { FetchedChannelDetailDto, FetchedLiveStateDto } from '../commons/dto/fetched-channel-info.dto'
 
-export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): ChzzkLiveStateDto {
+export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): FetchedLiveStateDto {
   if(liveStatus === null) {
     return {
       state: 'notFound',
@@ -27,7 +26,7 @@ export function getLiveStateDtoFromLiveStatus(liveStatus: LiveStatus | null): Ch
   }
 }
 
-export function getChannelDetailDtoFromChannelDto(channel: Channel): ChzzkChannelDetailDto {
+export function getChannelDetailDtoFromChannelDto(channel: Channel): FetchedChannelDetailDto {
   return {
     channelImageUrl: channel.channelImageUrl,
     displayName: channel.channelName,

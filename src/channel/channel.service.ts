@@ -16,6 +16,8 @@ import {
 import { EditChannelDto } from './dto/edit-channel.dto';
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
 import { ChannelId } from '../commons/types/channel-id.type'
+import { PlatformServiceDispatcher } from './platform-service.dispatcher'
+import { channelIdToString } from '../commons/utils/channel-id.util'
 
 @Injectable()
 export class ChannelService {
@@ -23,8 +25,8 @@ export class ChannelService {
 
   constructor(
     private readonly channelRepository: ChannelRepository,
-    private readonly chzzkService: ChzzkService,
     private readonly channelStore: ChannelStore,
+    private readonly platformServiceDispatcher: PlatformServiceDispatcher,
     messageDispatcher: MessageDispatcherService,
   ) {
     this.initStore().then(async () => {
@@ -40,15 +42,13 @@ export class ChannelService {
   private getChannelDataFromChzzk = async () => {
     const channels = await this.channelRepository.getChannels()
 
-    const priorityMap = new Map(channels.map(channel => [channel.channelId.id, channel]))
-    const chzzkChannelInfos = await this.chzzkService.getChannelInfos(
-      channels.map(channel => channel.channelId.id)
-    )
+    const priorityMap = new Map(channels.map(channel => [channelIdToString(channel.channelId), channel]))
+    const channelInfos = await this.platformServiceDispatcher.getChannelInfos(channels.map(channel => channel.channelId))
 
-    return chzzkChannelInfos.map(ch =>
-      ChannelInfoMapper.fromChzzk(
+    return channelInfos.map(ch =>
+      ChannelInfoMapper.fromFetchedChannelInfoDto(
         ch,
-        priorityMap.get(ch.channelId)!
+        priorityMap.get(channelIdToString(ch.channelId))!
       )
     )
   }
@@ -98,9 +98,9 @@ export class ChannelService {
   }
 
   async registerChannel(channelRegistrationDto: RegisterChannelDto) {
-    const chzzkChannelInfo = await this.chzzkService.getChannelInfo(channelRegistrationDto.channelId.id)
+    const fetchedChannelInfo = await this.platformServiceDispatcher.getChannelInfo(channelRegistrationDto.channelId)
 
-    const channelInfo = ChannelInfoMapper.fromChzzk(chzzkChannelInfo, channelRegistrationDto)
+    const channelInfo = ChannelInfoMapper.fromFetchedChannelInfoDto(fetchedChannelInfo, channelRegistrationDto)
 
     const channelDto: ChannelDto = {
       ...channelRegistrationDto,

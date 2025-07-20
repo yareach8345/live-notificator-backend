@@ -1,4 +1,4 @@
-import { ChzzkChannelInfoDto } from "src/chzzk/dto/chzzk-channel-info.dto";
+import { FetchedChannelInfoDto } from "src/commons/dto/fetched-channel-info.dto";
 import { ChannelInfoDto } from './dto/channel-info.dto'
 import { ChannelStateDto } from './dto/channel-state.dto'
 
@@ -9,14 +9,14 @@ type ChannelMeta = {
 
 
 export class ChannelInfoMapper {
-  static fromChzzk(
-    dto: ChzzkChannelInfoDto,
+  static fromFetchedChannelInfoDto(
+    dto: FetchedChannelInfoDto,
     channelMeta?: ChannelMeta
   ): ChannelInfoDto {
     return {
       channelId: {
-        id: dto.channelId,
-        platform: 'chzzk',
+        id: dto.channelId.id,
+        platform: dto.channelId.platform,
       },
       detail: {
         priority: channelMeta?.priority,

@@ -1,22 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ChzzkClient } from 'chzzk'
-import { ChzzkChannelInfoDto } from './dto/chzzk-channel-info.dto'
+import { FetchedChannelDetailDto, FetchedChannelInfoDto, FetchedLiveStateDto } from '../commons/dto/fetched-channel-info.dto'
 import { getChannelDetailDtoFromChannelDto, getLiveStateDtoFromLiveStatus } from './chzzk.util'
-import { ChzzkChannelDetailDto } from './dto/chzzk-channel-detail.dto'
-import { ChzzkLiveStateDto } from './dto/chzzk-live-state.dto'
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
 import { PlatformBaseService } from '../commons/base/platform-base.service'
 
 @Injectable()
-export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
+export class ChzzkService extends PlatformBaseService {
   private readonly chzzkClient: ChzzkClient
-  protected readonly logger: Logger
+  protected readonly logger: Logger = new Logger(ChzzkService.name)
 
   constructor() {
-    const logger = new Logger(ChzzkService.name)
-
-    super(logger)
-    this.logger = logger
+    super()
 
     this.chzzkClient = new ChzzkClient({
       nidAuth: process.env.NID_AUT,
@@ -24,7 +19,7 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
     })
   }
 
-  async getChannelDetail(channelId: string): Promise<ChzzkChannelDetailDto> {
+  async getChannelDetail(channelId: string): Promise<FetchedChannelDetailDto> {
     const channel = await this.chzzkClient.channel(channelId)
 
     if(channel === null) {
@@ -35,16 +30,20 @@ export class ChzzkService extends PlatformBaseService<ChzzkChannelInfoDto> {
     return getChannelDetailDtoFromChannelDto(channel)
   }
 
-  async getLiveState(channelId: string): Promise<ChzzkLiveStateDto> {
+  async getLiveState(channelId: string): Promise<FetchedLiveStateDto> {
     const live = await this.chzzkClient.live.status(channelId)
 
     return getLiveStateDtoFromLiveStatus(live)
   }
 
-  protected async loadChannelInfo(channelId: string): Promise<ChzzkChannelInfoDto> {
+  protected async loadChannelInfo(channelId: string): Promise<FetchedChannelInfoDto> {
     const detail = await this.getChannelDetail(channelId)
     const liveState = await this.getLiveState(channelId)
 
-    return { channelId, detail, liveState }
+    return {
+      channelId: { platform: 'chzzk', id: channelId },
+      detail,
+      liveState
+    }
   }
 }

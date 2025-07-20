@@ -1,15 +1,17 @@
 import { PlatformBaseService } from '../commons/base/platform-base.service'
-import { YoutubeChannelInfoDto } from './dto/youtube-channel-info.dto'
 import { youtube, youtube_v3 } from '@googleapis/youtube'
 import Youtube = youtube_v3.Youtube
-import { YoutubeChannelDetailDto } from './dto/youtube-channel-detail.dto'
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { YouTubeChannelParsingException } from '../commons/exceptions/youtube-channel-parsing.exception'
 import { getChannelImageUrl, stringFieldToNumber } from './youtube.util'
-import { YoutubeLiveStateDto } from './dto/youtube-live-state.dto'
+import {
+  FetchedChannelDetailDto,
+  FetchedChannelInfoDto,
+  FetchedLiveStateDto,
+} from '../commons/dto/fetched-channel-info.dto'
 
 @Injectable()
-export class YoutubeService extends PlatformBaseService<YoutubeChannelInfoDto> {
+export class YoutubeService extends PlatformBaseService {
   protected readonly logger = new Logger(YoutubeService.name)
   private readonly youtubeClient: Youtube
 
@@ -145,7 +147,7 @@ export class YoutubeService extends PlatformBaseService<YoutubeChannelInfoDto> {
     return response.data.items[0].snippet.title
   }
 
-  async getChannelDetail(channelId: string): Promise<YoutubeChannelDetailDto> {
+  async getChannelDetail(channelId: string): Promise<FetchedChannelDetailDto> {
     const channelInfo =  await this.fetchChannel(channelId)
 
     const channelDescription = channelInfo.snippet?.description ?? ''
@@ -172,7 +174,7 @@ export class YoutubeService extends PlatformBaseService<YoutubeChannelInfoDto> {
     }
   }
 
-  async getLiveState(channelId: string): Promise<YoutubeLiveStateDto> {
+  async getLiveState(channelId: string): Promise<FetchedLiveStateDto> {
     const liveId = await this.fetchLiveId(channelId)
 
     if(liveId === undefined) {
@@ -209,18 +211,19 @@ export class YoutubeService extends PlatformBaseService<YoutubeChannelInfoDto> {
       liveTitle,
       tags,
       concurrentUserCount,
-      category
+      category,
+      liveId
     }
   }
 
-  protected async loadChannelInfo(channelId: string): Promise<YoutubeChannelInfoDto> {
+  protected async loadChannelInfo(channelId: string): Promise<FetchedChannelInfoDto> {
     const [detail, liveState] = await Promise.all([
       this.getChannelDetail(channelId),
       this.getLiveState(channelId),
     ])
 
     return {
-      channelId,
+      channelId: { platform: 'youtube', id: channelId },
       detail,
       liveState
     }

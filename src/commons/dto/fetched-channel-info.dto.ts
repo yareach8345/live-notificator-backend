@@ -1,4 +1,4 @@
-import { ChannelId } from '../../commons/types/channel-id.type'
+import { ChannelId } from '../types/channel-id.type'
 
 export interface LiveOpenDto {
   state: 'open',
@@ -20,19 +20,18 @@ export interface LiveNotFoundDto {
   isOpen: false,
 }
 
-export type LiveStateDto = LiveOpenDto | LiveCloseDto | LiveNotFoundDto
+export type FetchedLiveStateDto = LiveOpenDto | LiveCloseDto | LiveNotFoundDto
 
-export interface ChannelDetailDto {
+export interface FetchedChannelDetailDto {
   displayName: string,
   channelDescription: string
   channelImageUrl?: string,
-  followerCount: number,
-  priority?: number,
-  color?: string
+  followerCount: number
 }
 
-export interface ChannelInfoDto {
-  channelId: ChannelId,
-  detail: ChannelDetailDto,
-  liveState: LiveStateDto,
+
+export interface FetchedChannelInfoDto {
+  channelId: ChannelId
+  detail: FetchedChannelDetailDto,
+  liveState: FetchedLiveStateDto,
 }

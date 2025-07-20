@@ -9,6 +9,7 @@ import { ChannelStore } from './channel.store'
 import { ChannelStateWatcher } from './channel-state.watcher'
 import { MessageDispatcherModule } from '../message-dispatcher/message-dispatcher.module'
 import { YoutubeModule } from '../youtube/youtube.module'
+import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { YoutubeModule } from '../youtube/youtube.module'
     YoutubeModule,
     MessageDispatcherModule,
   ],
-  providers: [ChannelService, ChannelRepository, ChannelStore, ChannelStateWatcher],
+  providers: [ChannelService, ChannelRepository, ChannelStore, ChannelStateWatcher, PlatformServiceDispatcher],
   controllers: [ChannelController],
   exports: [ChannelService]
 })
