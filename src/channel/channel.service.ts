@@ -87,7 +87,7 @@ export class ChannelService {
     const channel = this.channelStore.getChannelById(channelId)
 
     if(channel === undefined) {
-      throw new NotFoundException(`채널을 찾을 수 없습니다: ${channelId}`)
+      throw new NotFoundException(`채널을 찾을 수 없습니다: ${channelId.platform}-${channelId.id}`)
     }
 
     return channel

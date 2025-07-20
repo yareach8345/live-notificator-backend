@@ -20,7 +20,6 @@ export class ChannelImageService {
   readonly IMG_SIZES = requireEnvArray('IMAGE_SIZES').map(sizeString => {
     return parseInt(sizeString, 10)
   })
-  readonly PLATFORMS = ['chzzk', 'youtube']
 
   readonly CIRCLE_MASKS = new Map(this.IMG_SIZES.map(size => [
     size,
@@ -55,50 +54,41 @@ export class ChannelImageService {
   constructor(
     private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
-    channelService: ChannelService,
+    private readonly channelService: ChannelService,
   ) {
-    this.PLATFORMS.forEach(platform => fsSync.mkdirSync(this.generateImgDirectoryPath(platform, 'original'), { recursive: true }))
-    this.PLATFORMS.forEach(platform =>
-      this.generateImgDirectoryPathBySize(platform).forEach(path => fsSync.mkdirSync(path, { recursive: true }))
-    )
+    fsSync.mkdirSync(this.generateImgDirectoryPath('original'), { recursive: true })
+    this.generateImgDirectoryPathBySize().forEach(path => fsSync.mkdirSync(path, { recursive: true }))
 
-    this.initializeImageStore()
-      .then( () => { this.logger.log("채널 이미지 저장소 초기화 완료") })
-      .then( () => {
-        this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
-        this.channelChangeObserver.subscribe((er) => this.refreshImages([
-          ...er.added,
-          ...er.changed,
-          ...er.unchanged
-        ]))
-      })
+    this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
+    this.channelChangeObserver.subscribe((er) => this.refreshImages([
+      ...er.added,
+      ...er.changed,
+      ...er.unchanged
+    ]))
   }
 
-  generateImgName(imageName: string) {
-    return `${imageName}.png`
+  generateImgName(channelId: ChannelId) {
+    return `${channelId.platform}-${channelId.id}.png`
   }
 
-  generateImgDirectoryPath(platform: string, size: any) {
-    return `${this.IMG_DIRECTORY}/${platform}/size/${size}`
+  generateImgDirectoryPath(size: any) {
+    return `${this.IMG_DIRECTORY}/size/${size}`
   }
 
-  generateImgDirectoryPathBySize(platform: string) {
+  generateImgDirectoryPathBySize = () => {
     return [
-      ...this.IMG_SIZES.map(size => this.generateImgDirectoryPath(platform, size))
+      ...this.IMG_SIZES.map(size => this.generateImgDirectoryPath(size))
     ]
   }
 
-  generateImgPath(id: ChannelId, size: any): string {
-    return `${this.IMG_DIRECTORY}/${id.platform}/size/${size}/${this.generateImgName(id.id)}`
+  generateImgPath(channelId: ChannelId, size: any): string {
+    return `${this.IMG_DIRECTORY}/size/${size}/${this.generateImgName(channelId)}`
   }
 
   generateImgPathsBySize(channelId: ChannelId) {
     return [
       ...this.IMG_SIZES.map(size => this.generateImgPath(channelId, size),)
     ]
-  }
-
-  private async initializeImageStore() {
   }
 
   private downloadAndSaveImage = async ({channelId, imageUrl} : ChannelImageDto) => {
@@ -154,7 +144,7 @@ export class ChannelImageService {
   deleteChannelImage = async (channelId: ChannelId) => {
     await this.deleteImage(channelId)
     await this.channelImageRepository.deleteChannelImage(channelId)
-    this.logger.log(`이미지 삭제 : ${channelId.platform}/${this.generateImgName(channelId.id)}`)
+    this.logger.log(`이미지 삭제 : ${this.generateImgName(channelId)}`)
   }
 
   deleteChannelImages = async (channelIds: ChannelId[]) => {
