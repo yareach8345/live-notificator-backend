@@ -18,6 +18,13 @@ export class ChannelImageRepository {
     return channelImageEntities.map(channelImageEntity => channelImageEntity.toDto())
   }
 
+  async getChannelImagesByChannelId(channelId: ChannelId[]) {
+    const result = await this.repository.find({
+      where: channelId.map(channelIdToKey)
+    })
+    return result.map(channelImage => channelImage.toDto())
+  }
+
   async getChannelImageByChannelId(channelId: ChannelId) {
     const result = await this.repository.findOne({
       where: channelIdToKey(channelId)

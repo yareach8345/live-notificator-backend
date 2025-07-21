@@ -18,6 +18,8 @@ import { ChannelId } from '../commons/types/channel-id.type'
 import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
 import { ChannelImageService } from '../channel-image/channel-image.service'
+import { ChannelInfoDto } from './dto/channel-info.dto';
+import { channelInfoToChannelImage } from '../channel-image/channel-image.util'
 
 @Injectable()
 export class ChannelService {
@@ -30,7 +32,7 @@ export class ChannelService {
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
     messageDispatcher: MessageDispatcherService,
   ) {
-    this.initStore().then(async () => {
+    this.initChannelData().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
     })
     channelStore.addUpdateCallback(() => {
@@ -54,22 +56,27 @@ export class ChannelService {
     )
   }
 
-  private async initStore() {
-    const channelInfo = await this.getChannelDataFromApi()
+  private async initChannelData() {
+    const newChannelInfos = await this.getChannelDataFromApi()
 
-    const numberOfAddedChannel = await this.channelStore.init(channelInfo)
+    const numberOfAddedChannel = await this.channelStore.init(newChannelInfos)
+
+    await this.updateChannelImages(newChannelInfos)
     this.logger.log(`${numberOfAddedChannel}개의 채널 정보를 저장했습니다.`)
   }
 
-  private async updateStore() {
-    const channelInfo = await this.getChannelDataFromApi()
+  private async updateChannelData() {
+    const newChannelInfos = await this.getChannelDataFromApi()
 
-    const numberOfChangedChannel = await this.channelStore.update(channelInfo)
+    const numberOfChangedChannel = await this.channelStore.update(newChannelInfos)
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
+
+    await this.updateChannelImages(newChannelInfos)
   }
 
-  private async initChannelImage() {
-
+  private async updateChannelImages(channelInfos: ChannelInfoDto[]) {
+    const channelImages = channelInfos.map(channelInfoToChannelImage)
+    await this.channelImageService.refreshImages(channelImages)
   }
 
   async getChannelIds(pageable?: Pageable) {
@@ -173,7 +180,7 @@ export class ChannelService {
   @Cron("0 * * * * *")
   async refreshChannels() {
     this.logger.log("refresh 시작")
-    await this.updateStore()
+    await this.updateChannelData()
     this.logger.log("refresh 완료")
   }
 }
