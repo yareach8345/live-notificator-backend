@@ -1,7 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ChannelRepository } from './channel.repository';
 import { Pageable } from 'src/commons/dto/page.dto';
-import { ChzzkService } from '../chzzk/chzzk.service'
 import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
 import { ChannelInfoUpdateCallback, ChannelStore } from './channel.store'
@@ -18,12 +17,14 @@ import { RuntimeException } from '@nestjs/core/errors/exceptions'
 import { ChannelId } from '../commons/types/channel-id.type'
 import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
+import { ChannelImageService } from '../channel-image/channel-image.service'
 
 @Injectable()
 export class ChannelService {
   private readonly logger = new Logger(ChannelService.name);
 
   constructor(
+    private readonly channelImageService: ChannelImageService,
     private readonly channelRepository: ChannelRepository,
     private readonly channelStore: ChannelStore,
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
@@ -39,7 +40,7 @@ export class ChannelService {
     })
   }
 
-  private getChannelDataFromChzzk = async () => {
+  private getChannelDataFromApi = async () => {
     const channels = await this.channelRepository.getChannels()
 
     const priorityMap = new Map(channels.map(channel => [channelIdToString(channel.channelId), channel]))
@@ -54,17 +55,21 @@ export class ChannelService {
   }
 
   private async initStore() {
-    const channelInfo = await this.getChannelDataFromChzzk()
+    const channelInfo = await this.getChannelDataFromApi()
 
     const numberOfAddedChannel = await this.channelStore.init(channelInfo)
     this.logger.log(`${numberOfAddedChannel}개의 채널 정보를 저장했습니다.`)
   }
 
   private async updateStore() {
-    const channelInfo = await this.getChannelDataFromChzzk()
+    const channelInfo = await this.getChannelDataFromApi()
 
     const numberOfChangedChannel = await this.channelStore.update(channelInfo)
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
+  }
+
+  private async initChannelImage() {
+
   }
 
   async getChannelIds(pageable?: Pageable) {

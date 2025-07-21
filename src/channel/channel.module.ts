@@ -10,10 +10,12 @@ import { ChannelStateWatcher } from './channel-state.watcher'
 import { MessageDispatcherModule } from '../message-dispatcher/message-dispatcher.module'
 import { YoutubeModule } from '../youtube/youtube.module'
 import { PlatformServiceDispatcher } from './platform-service.dispatcher'
+import { ChannelImageModule } from '../channel-image/channel-image.module'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChannelEntity]),
+    ChannelImageModule,
     ChzzkModule,
     YoutubeModule,
     MessageDispatcherModule,

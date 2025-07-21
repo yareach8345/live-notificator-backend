@@ -10,7 +10,6 @@ import { ChannelModule } from './channel/channel.module'
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module'
 import { join } from 'path'
 import { ChannelImageEntity } from './channel-image/channel-image.entity'
-import { ChannelImageModule } from './channel-image/channel-image.module'
 import { MinimalChannelModule } from './minimal-channel/minimal-channel.module'
 import { DeviceEntity } from './device/device.entity'
 
@@ -33,7 +32,6 @@ import { DeviceEntity } from './device/device.entity'
     AuthModule,
     MinimalChannelModule,
     ChannelModule,
-    ChannelImageModule,
   ],
   controllers: [ AppController ],
   providers: [AppService],

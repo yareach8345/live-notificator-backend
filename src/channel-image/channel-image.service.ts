@@ -8,9 +8,6 @@ import { ChannelImageStore } from './channel-image.store'
 import * as sharp from 'sharp'
 import { ChannelImageRepository } from './channel-image.repository'
 import { generateDiffEvaluator } from '../commons/utils/evaluation.util'
-import { channelInfoToChannelImage } from './channel-image.util'
-import { ChannelService } from '../channel/channel.service'
-import { ChannelChangeObserver } from '../channel/channel-change.notifier'
 import { requireEnvArray } from '../commons/utils/env.util'
 import { ChannelId } from '../commons/types/channel-id.type'
 
@@ -49,23 +46,17 @@ export class ChannelImageService {
 
   readonly logger = new Logger(ChannelImageService.name)
 
-  channelChangeObserver: ChannelChangeObserver<ChannelImageDto>
-
   constructor(
     private readonly imageStore: ChannelImageStore,
     private readonly channelImageRepository: ChannelImageRepository,
-    private readonly channelService: ChannelService,
   ) {
     fsSync.mkdirSync(this.generateImgDirectoryPath('original'), { recursive: true })
     this.generateImgDirectoryPathBySize().forEach(path => fsSync.mkdirSync(path, { recursive: true }))
-
-    this.channelChangeObserver = channelService.channelChangeSubscribe(channelInfoToChannelImage)
-    this.channelChangeObserver.subscribe((er) => this.refreshImages([
-      ...er.added,
-      ...er.changed,
-      ...er.unchanged
-    ]))
   }
+
+  //이미지가 들어있는 디렉터리와 이미지 명에 대한 코드
+  //public 하위 /size/{size}/{platform}-{channelId}.png 형식으로 저장
+  //유튜브의 채널아이디가 abc인 채널의 200px크기의 이미지를 얻어오기 위해서는 /size/200/youtube-abc.png를 불러와야 함
 
   generateImgName(channelId: ChannelId) {
     return `${channelId.platform}-${channelId.id}.png`
@@ -90,6 +81,9 @@ export class ChannelImageService {
       ...this.IMG_SIZES.map(size => this.generateImgPath(channelId, size),)
     ]
   }
+
+  // 채널 이미지 저장과 삭제, 다운로드에 대한 코드
+  // 이미지를 저장, 삭제하는 코드는 db 조작을 포함함
 
   private downloadAndSaveImage = async ({channelId, imageUrl} : ChannelImageDto) => {
     const response = await axios.get(
