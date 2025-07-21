@@ -18,7 +18,6 @@ import { ChannelId } from '../commons/types/channel-id.type'
 import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
 import { ChannelImageService } from '../channel-image/channel-image.service'
-import { ChannelInfoDto } from './dto/channel-info.dto';
 import { channelInfoToChannelImage } from '../channel-image/channel-image.util'
 
 @Injectable()
@@ -56,12 +55,18 @@ export class ChannelService {
     )
   }
 
+  private async refreshChannelImage() {
+    const channelInfos = await this.channelStore.getChannels()
+    const channelImages = channelInfos.map(channelInfoToChannelImage)
+    await this.channelImageService.refreshImages(channelImages)
+  }
+
   private async initChannelData() {
     const newChannelInfos = await this.getChannelDataFromApi()
 
     const numberOfAddedChannel = await this.channelStore.init(newChannelInfos)
 
-    await this.updateChannelImages(newChannelInfos)
+    await this.refreshChannelImage()
     this.logger.log(`${numberOfAddedChannel}개의 채널 정보를 저장했습니다.`)
   }
 
@@ -71,12 +76,7 @@ export class ChannelService {
     const numberOfChangedChannel = await this.channelStore.update(newChannelInfos)
     this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
 
-    await this.updateChannelImages(newChannelInfos)
-  }
-
-  private async updateChannelImages(channelInfos: ChannelInfoDto[]) {
-    const channelImages = channelInfos.map(channelInfoToChannelImage)
-    await this.channelImageService.refreshImages(channelImages)
+    await this.refreshChannelImage()
   }
 
   async getChannelIds(pageable?: Pageable) {
@@ -121,9 +121,10 @@ export class ChannelService {
     }
 
     await this.channelRepository.saveChannel(channelDto)
-    this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
 
     await this.channelStore.addChannel(channelInfo)
+    await this.refreshChannelImage()
+    this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
 
     return channelDto
   }
@@ -132,6 +133,7 @@ export class ChannelService {
     await this.channelRepository.deleteChannel(channelId)
 
     await this.channelStore.deleteChannel(channelId)
+    await this.refreshChannelImage()
     this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
   }
 
