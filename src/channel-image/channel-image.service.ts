@@ -45,7 +45,7 @@ export class ChannelImageService {
       .toBuffer()
   ]))
 
-  private readonly imageNameRegex = new RegExp('^(?<platform>chzzk|youtube)-(?<id>[a-zA-Z0-9]+).png$')
+  private readonly imageNameRegex = new RegExp('^(?<platform>chzzk|youtube)-(?<id>[^.]+).png$')
 
   readonly evolute = generateDiffEvaluator<ChannelImageDto>()
 

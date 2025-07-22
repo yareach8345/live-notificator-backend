@@ -19,6 +19,9 @@ import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
 import { ChannelImageService } from '../channel-image/channel-image.service'
 import { channelInfoToChannelImage } from '../channel-image/channel-image.util'
+import { ChzzkService } from '../chzzk/chzzk.service'
+import { YoutubeService } from '../youtube/youtube.service'
+import { groupBy } from 'lodash'
 
 @Injectable()
 export class ChannelService {
@@ -29,6 +32,8 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly channelStore: ChannelStore,
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
+    private readonly chzzkService: ChzzkService,
+    private readonly youtubeService: YoutubeService,
     messageDispatcher: MessageDispatcherService,
   ) {
     this.initChannelData().then(async () => {
@@ -45,9 +50,14 @@ export class ChannelService {
     const channels = await this.channelRepository.getChannels()
 
     const priorityMap = new Map(channels.map(channel => [channelIdToString(channel.channelId), channel]))
-    const channelInfos = await this.platformServiceDispatcher.getChannelInfos(channels.map(channel => channel.channelId))
+    const channelByPlatform = groupBy(channels, channel => channel.channelId.platform)
 
-    return channelInfos.map(ch =>
+    const chzzkChannels = await this.chzzkService.getChannelInfos(channelByPlatform['chzzk']?.map(channel => channel.channelId.id) ?? [])
+    const youtubeChannels = await this.youtubeService.getChannelInfos(channelByPlatform['youtube']?.map(channel => channel.channelId.id) ?? [])
+
+    const fetchedResult = [...chzzkChannels, ...youtubeChannels]
+
+    return fetchedResult.map(ch =>
       ChannelInfoMapper.fromFetchedChannelInfoDto(
         ch,
         priorityMap.get(channelIdToString(ch.channelId))!
