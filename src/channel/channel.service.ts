@@ -32,8 +32,6 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly channelStore: ChannelStore,
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
-    private readonly chzzkService: ChzzkService,
-    private readonly youtubeService: YoutubeService,
     messageDispatcher: MessageDispatcherService,
   ) {
     this.initChannelData().then(async () => {
@@ -48,16 +46,11 @@ export class ChannelService {
 
   private getChannelDataFromApi = async () => {
     const channels = await this.channelRepository.getChannels()
-
     const priorityMap = new Map(channels.map(channel => [channelIdToString(channel.channelId), channel]))
-    const channelByPlatform = groupBy(channels, channel => channel.channelId.platform)
 
-    const chzzkChannels = await this.chzzkService.getChannelInfos(channelByPlatform['chzzk']?.map(channel => channel.channelId.id) ?? [])
-    const youtubeChannels = await this.youtubeService.getChannelInfos(channelByPlatform['youtube']?.map(channel => channel.channelId.id) ?? [])
+    const newChannelInfo = await this.platformServiceDispatcher.getChannelInfos(channels.map(ch => ch.channelId))
 
-    const fetchedResult = [...chzzkChannels, ...youtubeChannels]
-
-    return fetchedResult.map(ch =>
+    return newChannelInfo.map(ch =>
       ChannelInfoMapper.fromFetchedChannelInfoDto(
         ch,
         priorityMap.get(channelIdToString(ch.channelId))!

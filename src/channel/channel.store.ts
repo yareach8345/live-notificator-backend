@@ -49,12 +49,12 @@ export class ChannelStore {
       return numberOfUpdatedChannels
     })
 
-  updateOne = (channelId: ChannelId, newData: ChannelInfoDto) =>
+  updateOne = (channelId: ChannelId, updatedChannel: ChannelInfoDto) =>
     this.withUpdateCallback(async () => {
-      const newData = this.channels.map(channel =>
-        isEqual(channel.channelId, channelId) ? newData : channel
+      const newChannelInfo = this.channels.map(channel =>
+        isEqual(channel.channelId, channelId) ? updatedChannel : channel
       )
-      this.channels = sortChannels(newData)
+      this.channels = sortChannels(newChannelInfo)
     })
 
   addChannel = (newChannel: ChannelInfoDto) =>
