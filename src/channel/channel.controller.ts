@@ -95,6 +95,18 @@ export class ChannelController {
     return res.sendStatus(200)
   }
 
+  @Get(":platform/:id/state")
+  @UseGuards(LoginGuard)
+  getChannelState(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("id") id: string
+  ) {
+    const result = this.channelService.getChannelState({ platform, id })
+
+    return res.status(200).send(result)
+  }
+
   @Get(":platform")
   @UseGuards(LoginGuard)
   async getChannelByPlatform(

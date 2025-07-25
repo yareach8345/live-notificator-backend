@@ -3,18 +3,19 @@ import { MinimalChannelService } from './minimal-channel.service'
 import { Request, Response } from 'express'
 import { getPageable } from '../commons/utils/controller.util'
 import { HeaderOrLoginAuthGuard } from '../auth/guards/header-or-login-auth.guard'
+import { LoginGuard } from '../auth/guards/login.guard'
 
 @Controller('channels/minimal')
 export class MinimalChannelController {
 
-  constructor( private readonly deviceService: MinimalChannelService) { }
+  constructor( private readonly minimalChannelService: MinimalChannelService) { }
 
   @Get()
   @UseGuards(HeaderOrLoginAuthGuard)
   async getChannels(@Req() req: Request, @Res() res: Response) {
     const pageable = getPageable(req.query)
 
-    const channels = await this.deviceService.getChannels(pageable)
+    const channels = await this.minimalChannelService.getChannels(pageable)
 
     return res.status(200).json(channels);
   }
@@ -26,7 +27,7 @@ export class MinimalChannelController {
     @Param("platform") platform: string,
     @Param("channelId") id: string
   ) {
-    const channel = await this.deviceService.getChannel({ platform, id })
+    const channel = await this.minimalChannelService.getChannel({ platform, id })
 
     return res.status(200).json(channel)
   }
@@ -34,7 +35,7 @@ export class MinimalChannelController {
   @Get("states/open")
   @UseGuards(HeaderOrLoginAuthGuard)
   async getOpenChannels(@Res() res: Response) {
-    const openChannels = await this.deviceService.getOpenChannels()
+    const openChannels = await this.minimalChannelService.getOpenChannels()
 
     return res.status(200).json(openChannels)
   }
@@ -42,8 +43,21 @@ export class MinimalChannelController {
   @Get("states/close")
   @UseGuards(HeaderOrLoginAuthGuard)
   async getCloseChannels(@Res() res: Response) {
-    const closeChannels = await this.deviceService.getCloseChannels()
+    const closeChannels = await this.minimalChannelService.getCloseChannels()
 
     return res.status(200).json(closeChannels)
+  }
+
+
+  @Get(":platform/:id/state")
+  @UseGuards(LoginGuard)
+  getChannelState(
+    @Res() res: Response,
+    @Param("platform") platform: string,
+    @Param("id") id: string
+  ) {
+    const result = this.minimalChannelService.getChannelState({ platform, id })
+
+    return res.status(200).send(result)
   }
 }

@@ -1,20 +1,23 @@
 import { MinimalChannelInfoDto, MinimalLiveStateDto } from './dto/minimal-channel-info.dto'
-import { ChannelInfoDto } from '../channel/dto/channel-info.dto'
+import { ChannelInfoDto, LiveStateDto } from '../channel/dto/channel-info.dto'
 import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
 import { ComparableChannelInfoDto } from './dto/comparable-channel-info.dto'
 
-export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : ChannelInfoDto): MinimalChannelInfoDto {
-  const minimalLiveState: MinimalLiveStateDto =
-    liveState.isOpen
+export const liveStateDtoMadeMinimal = (liveState: LiveStateDto): MinimalLiveStateDto => {
+  return liveState.isOpen
     ? {
-        isOpen: true,
-        liveTitle: liveState.liveTitle,
-        concurrentUserCount: liveState.concurrentUserCount,
-        category: liveState.category,
-      }
+      isOpen: true,
+      liveTitle: liveState.liveTitle,
+      concurrentUserCount: liveState.concurrentUserCount,
+      category: liveState.category,
+    }
     : {
-        isOpen: false
-      }
+      isOpen: false
+    }
+}
+
+export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : ChannelInfoDto): MinimalChannelInfoDto {
+  const minimalLiveState: MinimalLiveStateDto = liveStateDtoMadeMinimal(liveState)
 
   return {
     channelId: channelId,

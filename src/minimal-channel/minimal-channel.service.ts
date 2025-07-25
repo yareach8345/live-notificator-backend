@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
-import { channelInfoDtoMadeMinimal, compareDataToChangeDto, projectChannelInfoForCompare } from './minimal-channel.util'
+import {
+  channelInfoDtoMadeMinimal,
+  compareDataToChangeDto,
+  liveStateDtoMadeMinimal,
+  projectChannelInfoForCompare,
+} from './minimal-channel.util'
 import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
 import { getUpdatedFields } from '../commons/utils/diff.util'
 import { MessageDispatcherService } from 'src/message-dispatcher/message-dispatcher.service'
@@ -53,5 +58,10 @@ export class MinimalChannelService {
   async getChannel(channelId: ChannelId) {
     const result = await this.channelService.getChannel(channelId)
     return channelInfoDtoMadeMinimal(result)
+  }
+
+  getChannelState(channelId: ChannelId) {
+    const liveState = this.channelService.getChannelState(channelId)
+    return liveStateDtoMadeMinimal(liveState)
   }
 }

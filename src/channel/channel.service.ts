@@ -125,6 +125,7 @@ export class ChannelService {
 
     await this.channelRepository.saveChannel(channelDto)
 
+    await this.channelImageService.downloadChannelImage(channelInfoToChannelImage(channelInfo))
     await this.channelStore.addChannel(channelInfo)
     await this.refreshChannelImage()
     this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
@@ -180,6 +181,14 @@ export class ChannelService {
 
   channelInfoUpdateSubscribe(callback: ChannelInfoUpdateCallback) {
     this.channelStore.addUpdateCallback(callback)
+  }
+
+  getChannelState(channelId: ChannelId) {
+    const channel = this.channelStore.getChannelById(channelId)
+    if(channel === undefined) {
+      throw new NotFoundException(`${channelId.platform}-${channelId.id} 채널이 존재하지 않습니다.`)
+    }
+    return channel.liveState
   }
 
   @Cron("0 * * * * *")
