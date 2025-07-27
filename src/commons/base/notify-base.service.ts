@@ -5,7 +5,14 @@ import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-chann
 import { ChannelId } from '../types/channel-id.type'
 
 export abstract class NotifyBaseService{
-  notifyChannelStateChange(channelState: NotifyChannelStateDto) {
+  notifyChannelImageChanged = (channelId: ChannelId) => {
+    this.notify(
+      `channel/${channelId.platform}/${channelId.id}/image`,
+      'changed'
+    )
+  }
+
+  notifyChannelStateChange = (channelState: NotifyChannelStateDto) => {
     const state = typeof channelState.state === 'boolean'
       ? (channelState.state ? 'open' : 'closed')
       : channelState.state
@@ -16,14 +23,14 @@ export abstract class NotifyBaseService{
     )
   }
 
-  notifyChannelInfoChange(channelId: ChannelId, channelInfoChangeDto: Partial<ChannelInfoChangeDto>) {
+  notifyChannelInfoChange = (channelId: ChannelId, channelInfoChangeDto: Partial<ChannelInfoChangeDto>) => {
     this.notify(
       `channel/${channelId.platform}/${channelId.id}/info-changed`,
       JSON.stringify(channelInfoChangeDto),
     )
   }
 
-  notifyChannelInfoUpdate(updateDto: UpdateNotifyDto) {
+  notifyChannelInfoUpdate = (updateDto: UpdateNotifyDto) => {
     const datetime = dateToString(updateDto.date)
     this.notify('updated-at', datetime)
   }

@@ -19,9 +19,6 @@ import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
 import { ChannelImageService } from '../channel-image/channel-image.service'
 import { channelInfoToChannelImage } from '../channel-image/channel-image.util'
-import { ChzzkService } from '../chzzk/chzzk.service'
-import { YoutubeService } from '../youtube/youtube.service'
-import { groupBy } from 'lodash'
 
 @Injectable()
 export class ChannelService {
@@ -32,7 +29,7 @@ export class ChannelService {
     private readonly channelRepository: ChannelRepository,
     private readonly channelStore: ChannelStore,
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
-    messageDispatcher: MessageDispatcherService,
+    private readonly messageDispatcher: MessageDispatcherService,
   ) {
     this.initChannelData().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
@@ -61,7 +58,9 @@ export class ChannelService {
   private async refreshChannelImage() {
     const channelInfos = await this.channelStore.getChannels()
     const channelImages = channelInfos.map(channelInfoToChannelImage)
-    await this.channelImageService.refreshImages(channelImages)
+    const changedChannelIds = await this.channelImageService.refreshImages(channelImages)
+
+    changedChannelIds.forEach(this.messageDispatcher.notifyChannelImageChanged)
   }
 
   private async initChannelData() {

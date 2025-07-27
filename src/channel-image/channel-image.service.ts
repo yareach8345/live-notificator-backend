@@ -248,6 +248,7 @@ export class ChannelImageService {
   refreshImages = async (newImageDtos: ChannelImageDto[]) => {
     const storedImages = this.imageStore.getChannelImages()
     const chackResult = this.evolute(storedImages, newImageDtos)
+    const changedChannels = chackResult.changed.map(c => c.channelId)
 
     this.logger.log(`이미지 변경 사항 [추가 : ${chackResult.added.length}, 삭제: ${chackResult.deleted.length}, 변경: ${chackResult.changed.length}, 유지:${chackResult.unchanged.length}]`)
 
@@ -260,5 +261,7 @@ export class ChannelImageService {
     }
 
     this.imageStore.update(newImageDtos)
+
+    return changedChannels
   }
 }
