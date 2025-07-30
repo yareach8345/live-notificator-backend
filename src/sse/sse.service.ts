@@ -35,6 +35,13 @@ export class SseService extends NotifyBaseService {
       .map(({ sseId, connectedAt }) => ({ sseId, connectedAt }))
   }
 
+  sendTestMessage(event: string | undefined, payload: string) {
+    const topic = event === undefined ? 'test' : `test/${event}`
+    this.notify(topic, payload)
+
+    return { topic, payload }
+  }
+
   override notify(topic: string, payload: string) {
     this.clientsMap.forEach(({sseClient$}) => {
       sseClient$.next({

@@ -45,14 +45,13 @@ export class SseController {
     @Query('message') message: string,
     @Query('event') event?: string
   ) {
-    this.sseService.notify(
-      event ?? "test",
+    const sentMessage = this.sseService.sendTestMessage(
+      event,
       message
     )
 
-    return {
-      message,
-      event
-    }
+    this.logger.log(`테스트 메시지 전송 : { topic: ${sentMessage.topic}, payload: ${sentMessage.payload} }`)
+
+    return sentMessage
   }
 }
