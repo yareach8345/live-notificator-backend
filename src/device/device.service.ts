@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { HttpException, Injectable, Logger } from '@nestjs/common'
 import { DeviceRepository } from './device.repository'
 import { DeviceAuthDto } from './dto/device-auth.dto'
 import { RegisterDeviceDto } from './dto/register-device.dto'
@@ -31,17 +31,16 @@ export class DeviceService {
 
     const secretKey = uuid.v4()
 
-    await this.deviceRepository.saveDevice({
-      deviceId: registerDeviceDto.deviceId,
+    const newDeviceDto = {
+      ...registerDeviceDto,
       secretKey: secretKey,
-    })
+    }
+
+    await this.deviceRepository.saveDevice(newDeviceDto)
 
     this.logger.log(`디바이스 등록 : ${deviceId}`)
 
-    return {
-      deviceId,
-      secretKey,
-    }
+    return newDeviceDto
   }
 
   async resetSecretKey(deviceId: string) {
