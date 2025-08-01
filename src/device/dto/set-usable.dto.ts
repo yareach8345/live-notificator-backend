@@ -1,3 +1,3 @@
-export interface SetUsable {
+export interface SetUsableDto {
   newUsable: boolean
 }

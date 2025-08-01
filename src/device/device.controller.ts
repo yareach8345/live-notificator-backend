@@ -3,9 +3,8 @@ import { DeviceService } from './device.service';
 import { Response } from 'express'
 import { LoginGuard } from '../auth/guards/login.guard'
 import { RegisterDeviceDto } from './dto/register-device.dto'
-import { DeviceDto } from './dto/device.dto'
 import { HeaderAuthGuard } from '../auth/guards/header-auth-guard.service'
-import { SetUsable } from './dto/set-usable.dto'
+import { SetUsableDto } from './dto/set-usable.dto'
 import { UpdateDeviceDto } from './dto/update-device.dto'
 
 @Controller("/devices")
@@ -48,7 +47,7 @@ export class DeviceController {
     res.status(200).send(updatedDeviceDto)
   }
 
-  @Patch(':deviceId/reset-secret')
+  @Patch(':deviceId/secret-key')
   @UseGuards(LoginGuard)
   async resetSecret(@Res() res: Response, @Param('deviceId') deviceId: string) {
     const updatedDeviceDto = await this.deviceService.resetSecretKey(deviceId)
@@ -56,9 +55,9 @@ export class DeviceController {
     res.status(201).send(updatedDeviceDto)
   }
 
-  @Patch(':deviceId/set-usable')
+  @Patch(':deviceId/usable')
   @UseGuards(LoginGuard)
-  async setUsable(@Res() res: Response, @Param('deviceId') deviceId: string, @Body() setUsable: SetUsable) {
+  async setUsable(@Res() res: Response, @Param('deviceId') deviceId: string, @Body() setUsable: SetUsableDto) {
     const updatedDeviceDto = await this.deviceService.setUsable(deviceId, setUsable.newUsable)
 
     res.status(201).send(updatedDeviceDto)
