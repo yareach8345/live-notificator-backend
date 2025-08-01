@@ -3,4 +3,5 @@ export interface DeviceDto {
   deviceId: string
   secretKey: string
   description: string | null
+  isUsable: boolean
 }

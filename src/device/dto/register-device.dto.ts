@@ -1,3 +1,3 @@
 import { DeviceDto } from './device.dto'
 
-export type RegisterDeviceDto = Omit<DeviceDto, 'secretKey'>
+export type RegisterDeviceDto = Omit<DeviceDto, 'secretKey' | 'isUsable'>

@@ -5,6 +5,8 @@ import { LoginGuard } from '../auth/guards/login.guard'
 import { RegisterDeviceDto } from './dto/register-device.dto'
 import { DeviceDto } from './dto/device.dto'
 import { HeaderAuthGuard } from '../auth/guards/header-auth-guard.service'
+import { SetUsable } from './dto/set-usable.dto'
+import { UpdateDeviceDto } from './dto/update-device.dto'
 
 @Controller("/devices")
 export class DeviceController {
@@ -35,21 +37,29 @@ export class DeviceController {
   async registerDevice(@Res() res: Response, @Body() registerDeviceDto: RegisterDeviceDto) {
     const newDeviceDto = await this.deviceService.registerDevice(registerDeviceDto)
 
-    res.status(201).location(`devices/${registerDeviceDto.deviceId}`).send(newDeviceDto)
+    res.status(200).location(`devices/${registerDeviceDto.deviceId}`).send(newDeviceDto)
   }
 
   @Patch(':deviceId')
   @UseGuards(LoginGuard)
-  async updateDevice(@Res() res: Response, @Param('deviceId') deviceId: string, @Body() newValues: Partial<DeviceDto>) {
+  async updateDevice(@Res() res: Response, @Param('deviceId') deviceId: string, @Body() newValues: Partial<UpdateDeviceDto>) {
     const updatedDeviceDto = await this.deviceService.updateDevice(deviceId, newValues)
 
-    res.status(201).location(`devices/${newValues.deviceId}`).send(updatedDeviceDto)
+    res.status(200).send(updatedDeviceDto)
   }
 
   @Patch(':deviceId/reset-secret')
   @UseGuards(LoginGuard)
   async resetSecret(@Res() res: Response, @Param('deviceId') deviceId: string) {
     const updatedDeviceDto = await this.deviceService.resetSecretKey(deviceId)
+
+    res.status(201).send(updatedDeviceDto)
+  }
+
+  @Patch(':deviceId/set-usable')
+  @UseGuards(LoginGuard)
+  async setUsable(@Res() res: Response, @Param('deviceId') deviceId: string, @Body() setUsable: SetUsable) {
+    const updatedDeviceDto = await this.deviceService.setUsable(deviceId, setUsable.newUsable)
 
     res.status(201).send(updatedDeviceDto)
   }

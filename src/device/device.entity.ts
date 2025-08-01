@@ -15,12 +15,16 @@ export class DeviceEntity {
   @Column({ name: 'description', nullable: true, type: 'text' })
   description: string | null
 
+  @Column({ name: 'usable', default: true })
+  isUsable: boolean
+
   toDto(): DeviceDto {
     return {
       deviceId: this.deviceId,
       deviceName: this.deviceName,
       secretKey: this.secretKey,
-      description: this.description
+      description: this.description,
+      isUsable: this.isUsable,
     }
   }
 }
