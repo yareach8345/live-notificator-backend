@@ -1,8 +1,8 @@
-import { UpdateNotifyDto } from 'src/message-dispatcher/dto/update-notify.dto'
 import { ChannelInfoChangeDto } from '../../message-dispatcher/dto/channel-info-change.dto'
 import { dateToString } from '../utils/date.util'
 import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-channel-state.dto'
 import { ChannelId } from '../types/channel-id.type'
+import { NotifyUpdateDto } from '../../message-dispatcher/dto/notify-update.dto'
 
 export abstract class NotifyBaseService{
   notifyChannelImageChanged = (channelId: ChannelId) => {
@@ -30,9 +30,17 @@ export abstract class NotifyBaseService{
     )
   }
 
-  notifyChannelInfoUpdate = (updateDto: UpdateNotifyDto) => {
-    const datetime = dateToString(updateDto.date)
+  notifyChannelInfoUpdate = () => {
+    const datetime = dateToString(new Date())
     this.notify('updated-at', datetime)
+  }
+
+  notifyChannelUpdateStart = (updateNotifyDto: NotifyUpdateDto) => {
+    this.notify(`update/${updateNotifyDto.type}`, 'start')
+  }
+
+  notifyChannelUpdateEnd = (updateNotifyDto: NotifyUpdateDto) => {
+    this.notify(`update/${updateNotifyDto.type}`, 'end')
   }
 
   abstract notify(topic: string, payload: string): void

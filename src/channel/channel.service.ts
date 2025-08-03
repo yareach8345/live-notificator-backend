@@ -35,9 +35,7 @@ export class ChannelService {
       this.logger.log("채널 상태 초기화 완료")
     })
     channelStore.addUpdateCallback(() => {
-      messageDispatcher.notifyChannelInfoUpdate({
-        date: new Date(),
-      })
+      messageDispatcher.notifyChannelInfoUpdate()
     })
   }
 
@@ -60,7 +58,9 @@ export class ChannelService {
     const channelImages = channelInfos.map(channelInfoToChannelImage)
     const changedChannelIds = await this.channelImageService.refreshImages(channelImages)
 
+    this.messageDispatcher.notifyChannelUpdateStart({ type: 'image' })
     changedChannelIds.forEach(this.messageDispatcher.notifyChannelImageChanged)
+    this.messageDispatcher.notifyChannelUpdateEnd({ type: 'image' })
   }
 
   private async initChannelData() {

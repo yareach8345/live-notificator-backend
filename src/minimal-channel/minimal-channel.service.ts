@@ -23,6 +23,7 @@ export class MinimalChannelService {
       .channelChangeSubscribe(projectChannelInfoForCompare)
       .subscribe(({changed, previous}) => {
         const previousMap = new Map<string, ChannelInfoChangeDto>( previous.map(before => [ channelIdToString(before.channelId), compareDataToChangeDto(before) ]) )
+        messageDispatcherService.notifyChannelUpdateStart({ type: 'info' })
         changed
           .map(after => ({
             channelId: after.channelId,
@@ -37,6 +38,7 @@ export class MinimalChannelService {
           .forEach(({ channelId, diff}) => {
             messageDispatcherService.notifyChannelInfoChange(channelId, diff)
           })
+        messageDispatcherService.notifyChannelUpdateEnd({ type: 'info' })
       })
   }
 
