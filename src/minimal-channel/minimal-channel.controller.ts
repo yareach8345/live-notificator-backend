@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Req, Res, UseGuards } from "@nestjs/common";
 import { MinimalChannelService } from './minimal-channel.service'
 import { Request, Response } from 'express'
-import { getPageable } from '../commons/utils/controller.util'
+import { getIdStrings, getPageable } from '../commons/utils/controller.util'
 import { HeaderOrLoginAuthGuard } from '../auth/guards/header-or-login-auth.guard'
 import { LoginGuard } from '../auth/guards/login.guard'
 
@@ -15,7 +15,9 @@ export class MinimalChannelController {
   async getChannels(@Req() req: Request, @Res() res: Response) {
     const pageable = getPageable(req.query)
 
-    const channels = await this.minimalChannelService.getChannels(pageable)
+    const idStrings = getIdStrings(req.query)
+
+    const channels = await this.minimalChannelService.getChannels(pageable, idStrings)
 
     return res.status(200).json(channels);
   }

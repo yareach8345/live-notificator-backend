@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ChannelService } from '../channel/channel.service'
 import { Pageable } from '../commons/dto/page.dto'
 import {
@@ -40,8 +40,8 @@ export class MinimalChannelService {
       })
   }
 
-  async getChannels(pageable?: Pageable) {
-    const result = await this.channelService.getChannels(pageable)
+  async getChannels(pageable?: Pageable, idStrings?: string[]) {
+    const result = await this.channelService.getChannels(pageable, idStrings)
     return result.map(channelInfoDtoMadeMinimal)
   }
 

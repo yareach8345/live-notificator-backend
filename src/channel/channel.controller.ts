@@ -2,7 +2,7 @@ import { Response, Request } from "express";
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { LoginGuard } from '../auth/guards/login.guard'
 import { ChannelService } from "./channel.service"
-import { getPageable } from '../commons/utils/controller.util'
+import { getIdStrings, getPageable } from '../commons/utils/controller.util'
 import { RegisterChannelDto } from "./dto/register-channel.dto";
 import { EditChannelDto } from './dto/edit-channel.dto'
 
@@ -25,7 +25,9 @@ export class ChannelController {
   async getChannels(@Req() req: Request, @Res() res: Response) {
     const pageable = getPageable(req.query)
 
-    const channels = await this.channelService.getChannels(pageable)
+    const ids = getIdStrings(req.query)
+
+    const channels = await this.channelService.getChannels(pageable, ids)
 
     return res.status(200).json(channels);
   }

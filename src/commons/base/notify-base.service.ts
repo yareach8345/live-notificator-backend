@@ -2,7 +2,6 @@ import { ChannelInfoChangeDto } from '../../message-dispatcher/dto/channel-info-
 import { dateToString } from '../utils/date.util'
 import { NotifyChannelStateDto } from '../../message-dispatcher/dto/notify-channel-state.dto'
 import { ChannelId } from '../types/channel-id.type'
-import { NotifyUpdateDto } from '../../message-dispatcher/dto/notify-update.dto'
 
 export abstract class NotifyBaseService{
   notifyChannelImageChanged = (channelId: ChannelId) => {

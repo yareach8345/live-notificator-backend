@@ -87,8 +87,12 @@ export class ChannelService {
     return this.channelRepository.getChannelIds(pageable)
   }
 
-  async getChannels(pageable?: Pageable) {
-    return this.channelStore.getChannels(pageable)
+  async getChannels(pageable?: Pageable, idStrings?: string[]) {
+    const channels = await this.channelStore.getChannels(pageable)
+
+    return idStrings === undefined
+      ? channels
+      : channels.filter(c => idStrings.includes(channelIdToString(c.channelId)) )
   }
 
   async getOpenChannels(pageable?: Pageable) {

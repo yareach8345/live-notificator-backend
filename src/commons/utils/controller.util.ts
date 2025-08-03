@@ -11,3 +11,11 @@ export function getPageable(query: ParsedQs): Pageable | undefined {
     return undefined
   }
 }
+
+export function getIdStrings(query: ParsedQs): string[] | undefined {
+  const idQuery = query.id
+
+  return idQuery === undefined
+    ? undefined
+    : Array.isArray(idQuery) ? idQuery.map(q => q.toString()) : [idQuery.toString()]
+}
