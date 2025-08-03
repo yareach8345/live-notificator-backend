@@ -30,17 +30,14 @@ export abstract class NotifyBaseService{
     )
   }
 
+  notifyChannelInfoRefresh = () => {
+    const datetime = dateToString(new Date())
+    this.notify('refreshed-at', datetime)
+  }
+
   notifyChannelInfoUpdate = () => {
     const datetime = dateToString(new Date())
     this.notify('updated-at', datetime)
-  }
-
-  notifyChannelUpdateStart = (updateNotifyDto: NotifyUpdateDto) => {
-    this.notify(`update/${updateNotifyDto.type}`, 'start')
-  }
-
-  notifyChannelUpdateEnd = (updateNotifyDto: NotifyUpdateDto) => {
-    this.notify(`update/${updateNotifyDto.type}`, 'end')
   }
 
   abstract notify(topic: string, payload: string): void

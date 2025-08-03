@@ -19,8 +19,6 @@ export class ChannelStateWatcher {
     this.stateChannelChangeObserver.subscribe(er => {
       this.logger.log('channel state change detected')
 
-      this.messageDispatcherService.notifyChannelUpdateStart({ type: 'state' })
-
       er.changed
         .map(channelState => ({
           channelId: channelState.channelId,
@@ -41,8 +39,6 @@ export class ChannelStateWatcher {
           state: 'deleted'
         }))
         .forEach(this.notifyChannelStateChange)
-
-      this.messageDispatcherService.notifyChannelUpdateEnd({ type: 'state' })
     })
 
   }
