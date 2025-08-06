@@ -1,7 +1,7 @@
 import { MinimalChannelInfoDto, MinimalLiveStateDto } from './dto/minimal-channel-info.dto'
 import { ChannelInfoDto, LiveStateDto } from '../channel/dto/channel-info.dto'
 import { ChannelInfoChangeDto } from '../message-dispatcher/dto/channel-info-change.dto'
-import { ComparableChannelInfoDto } from './dto/comparable-channel-info.dto'
+import { ComparableChannelInfoDto } from '../notifier/dto/comparable-channel-info.dto'
 
 export const liveStateDtoMadeMinimal = (liveState: LiveStateDto): MinimalLiveStateDto => {
   return liveState.isOpen
@@ -28,18 +28,6 @@ export function channelInfoDtoMadeMinimal({channelId, detail, liveState} : Chann
       color: detail.color,
     },
     liveState: minimalLiveState,
-  }
-}
-
-export function projectChannelInfoForCompare(channelInfoDto: ChannelInfoDto): ComparableChannelInfoDto {
-  const { isOpen, state, tags, ...detectableLiveStateInfo } = { tags: undefined, ...channelInfoDto.liveState }
-
-  const { channelDescription, ...detectableChannelDetail } = channelInfoDto.detail
-
-  return {
-    channelId: channelInfoDto.channelId,
-    detail: detectableChannelDetail,
-    liveState: detectableLiveStateInfo,
   }
 }
 

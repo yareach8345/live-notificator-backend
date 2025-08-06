@@ -3,15 +3,9 @@ import { ChannelRepository } from './channel.repository';
 import { Pageable } from 'src/commons/dto/page.dto';
 import { RegisterChannelDto } from './dto/register-channel.dto'
 import { ChannelDto } from './dto/channel.dto';
-import { ChannelInfoUpdateCallback, ChannelStore } from './channel.store'
+import { ChannelStore } from './channel.store'
 import { Cron } from '@nestjs/schedule'
 import { ChannelInfoMapper } from './channel-info.mapper'
-import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
-import {
-  ChannelChangeObserver,
-  ChannelInfoTransformer,
-  createChannelChangeNotifier,
-} from './channel-change.notifier'
 import { EditChannelDto } from './dto/edit-channel.dto';
 import { RuntimeException } from '@nestjs/core/errors/exceptions'
 import { ChannelId } from '../commons/types/channel-id.type'
@@ -19,6 +13,10 @@ import { PlatformServiceDispatcher } from './platform-service.dispatcher'
 import { channelIdToString } from '../commons/utils/channel-id.util'
 import { ChannelImageService } from '../channel-image/channel-image.service'
 import { channelInfoToChannelImage } from '../channel-image/channel-image.util'
+import { ChannelImageNotifier } from '../notifier/channel-image.notifier'
+import { ChannelInfoNotifier } from '../notifier/channel-info.notifier'
+import { ChannelStateNotifier } from '../notifier/channel-state.notifier'
+import { MessageDispatcherService } from '../message-dispatcher/message-dispatcher.service'
 
 @Injectable()
 export class ChannelService {
@@ -30,12 +28,12 @@ export class ChannelService {
     private readonly channelStore: ChannelStore,
     private readonly platformServiceDispatcher: PlatformServiceDispatcher,
     private readonly messageDispatcher: MessageDispatcherService,
+    private readonly channelImageNotifier: ChannelImageNotifier,
+    private readonly channelInfoNotifier: ChannelInfoNotifier,
+    private readonly channelStateNotifier: ChannelStateNotifier,
   ) {
     this.initChannelData().then(async () => {
       this.logger.log("채널 상태 초기화 완료")
-    })
-    channelStore.addUpdateCallback(() => {
-      messageDispatcher.notifyChannelInfoRefresh()
     })
   }
 
@@ -54,11 +52,13 @@ export class ChannelService {
   }
 
   private async refreshChannelImage() {
-    const channelInfos = await this.channelStore.getChannels()
+    const channelInfos = this.channelStore.getChannels()
     const channelImages = channelInfos.map(channelInfoToChannelImage)
     const changedChannelIds = await this.channelImageService.refreshImages(channelImages)
 
-    changedChannelIds.forEach(this.messageDispatcher.notifyChannelImageChanged)
+    changedChannelIds.forEach(this.channelImageNotifier.notify)
+
+    return changedChannelIds.length !== 0
   }
 
   private async initChannelData() {
@@ -70,15 +70,25 @@ export class ChannelService {
     this.logger.log(`${numberOfAddedChannel}개의 채널 정보를 저장했습니다.`)
   }
 
-  private async updateChannelData() {
+  private async processRefreshChannels() {
+    const originalChannelInfos = this.channelStore.getChannels()
     const newChannelInfos = await this.getChannelDataFromApi()
 
-    const numberOfChangedChannel = await this.channelStore.update(newChannelInfos)
-    this.logger.log(`${numberOfChangedChannel}개의 채널 상태를 업데이트 했습니다.`)
+    this.channelStore.update(newChannelInfos)
 
-    await this.refreshChannelImage()
+    const isChannelImageChanged = await this.refreshChannelImage()
 
-    if(numberOfChangedChannel > 0) {
+    const isChannelInfoChanged = await this.channelInfoNotifier.notifyDiff(
+      originalChannelInfos,
+      newChannelInfos,
+    )
+
+    const isChannelStateChanged = await this.channelStateNotifier.notifyDiff(
+      originalChannelInfos,
+      newChannelInfos
+    )
+
+    if(isChannelInfoChanged || isChannelImageChanged || isChannelStateChanged) {
       this.messageDispatcher.notifyChannelInfoUpdate()
     }
   }
@@ -88,7 +98,7 @@ export class ChannelService {
   }
 
   async getChannels(pageable?: Pageable, idStrings?: string[]) {
-    const channels = await this.channelStore.getChannels(pageable)
+    const channels = this.channelStore.getChannels(pageable)
 
     return idStrings === undefined
       ? channels
@@ -131,9 +141,16 @@ export class ChannelService {
     await this.channelRepository.saveChannel(channelDto)
 
     await this.channelImageService.downloadChannelImage(channelInfoToChannelImage(channelInfo))
-    await this.channelStore.addChannel(channelInfo)
-    await this.refreshChannelImage()
-    this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
+
+    const isProcessed = this.channelStore.addChannel(channelInfo)
+    if(isProcessed) {
+      await this.refreshChannelImage()
+      this.logger.log(`채널을 등록 했습니다: ${channelDto.displayName}(${channelDto.channelId.platform}/${channelDto.channelId.id})`)
+      this.messageDispatcher.notifyChannelStateChange({
+        channelId: channelDto.channelId,
+        state: 'added'
+      })
+    }
 
     return channelDto
   }
@@ -141,9 +158,15 @@ export class ChannelService {
   async unregisterChannel(channelId: ChannelId) {
     await this.channelRepository.deleteChannel(channelId)
 
-    await this.channelStore.deleteChannel(channelId)
-    await this.refreshChannelImage()
-    this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
+    const isProcessed = this.channelStore.deleteChannel(channelId)
+    if(isProcessed) {
+      await this.refreshChannelImage()
+      this.logger.log(`채널을 삭제 했습니다: ${channelId}`)
+      this.messageDispatcher.notifyChannelStateChange({
+        channelId,
+        state: 'deleted'
+      })
+    }
   }
 
   async updateChannel(channelId: ChannelId, editChannelDto: EditChannelDto) {
@@ -173,19 +196,9 @@ export class ChannelService {
       }
     }
 
-    await this.channelStore.updateOne(channelId, channelInfoAfterUpdate)
+    this.channelStore.updateOne(channelId, channelInfoAfterUpdate)
 
     return afterUpdate
-  }
-
-  channelChangeSubscribe<R extends Record<'channelId', ChannelId>>(transformFromChannelInfo: ChannelInfoTransformer<R>): ChannelChangeObserver<R> {
-    const [emitter, observer] = createChannelChangeNotifier<R>(transformFromChannelInfo)
-    this.channelStore.addUpdateCallback(emitter.emit)
-    return observer
-  }
-
-  channelInfoUpdateSubscribe(callback: ChannelInfoUpdateCallback) {
-    this.channelStore.addUpdateCallback(callback)
   }
 
   getChannelState(channelId: ChannelId) {
@@ -199,7 +212,8 @@ export class ChannelService {
   @Cron("0 * * * * *")
   async refreshChannels() {
     this.logger.log("refresh 시작")
-    await this.updateChannelData()
+    this.messageDispatcher.notifyChannelInfoRefresh()
+    await this.processRefreshChannels()
     this.logger.log("refresh 완료")
   }
 }
