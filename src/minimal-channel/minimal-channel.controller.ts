@@ -27,7 +27,7 @@ export class MinimalChannelController {
   async getChannel(
     @Res() res: Response,
     @Param("platform") platform: string,
-    @Param("channelId") id: string
+    @Param("id") id: string
   ) {
     const channel = await this.minimalChannelService.getChannel({ platform, id })
 
