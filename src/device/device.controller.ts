@@ -14,8 +14,8 @@ export class DeviceController {
   @Get()
   @UseGuards(LoginGuard)
   async getDevices(@Res() res: Response) {
-    const deviceIds = await this.deviceService.getDevices()
-    res.status(200).send(deviceIds)
+    const devices = await this.deviceService.getDevices()
+    res.status(200).send(devices)
   }
 
   @Get('auth-test')
