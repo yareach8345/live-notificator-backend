@@ -13,7 +13,7 @@ create table channel_images(
 	channel_id varchar(255),
 	image_url varchar(512),
 	primary key (platform, channel_id),
-	foreign key (platform, channel_id) references channels(platform, channel_id)
+	foreign key (platform, channel_id) references channels(platform, channel_id) on delete cascade
 );
 
 create table devices(
